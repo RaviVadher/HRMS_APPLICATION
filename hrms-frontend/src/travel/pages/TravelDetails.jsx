@@ -12,7 +12,6 @@ import { getMyExpenses } from "../travelAPI";
 
 const TravelDetails = () => {
   const { id } = useParams();
-  const { user,role } = useAuth();
   const navigate = useNavigate();
 
   const [travel, setTravel] = useState(null);
@@ -23,13 +22,14 @@ const TravelDetails = () => {
   useEffect(() => {
     fetchTravel();
     fetchAssignEmployee();
-  }, []);
+  }, [openAssign]);
 
   const fetchTravel = async () => {
     const res = await getTravelById(id);
     setTravel(res);
     console.log(res);
   };
+
 
   const fetchExpenses = async (assignedId) => {
     const res = await getMyExpenses(assignedId);
@@ -40,13 +40,13 @@ const TravelDetails = () => {
     console.log(expenses)
   };
 
+
   const  fetchAssignEmployee = async () => {
     const res = await getAssignById(id);
     setEmployee(res);
     console.log(res);
-
     res.forEach(emp => {
-      fetchExpenses(emp.assignedId);
+    fetchExpenses(emp.assignedId);
     });
   };
 
@@ -57,12 +57,10 @@ const TravelDetails = () => {
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Travel Details</h2>
-
         {!isTravelStarted && (
           <Button
             variant="contained"
-            onClick={() => setOpenAssign(true)}
-          >
+            onClick={() => setOpenAssign(true)}>
             + Assign Travel
           </Button>
         )}
@@ -79,34 +77,29 @@ const TravelDetails = () => {
         <h3 className="text-lg font-semibold mb-4">
           Assigned Employees
         </h3>
-       <hr />
         {employees?.length === 0 && (
           <p className="text-gray-500">No employees assigned.</p>
         )}
 
         <ul className="space-y-10">
           {employees.map((emp) => (
-            <li
-              key={emp.assignedUserId}
-              className=""
-            >
+            <li key={emp.assignedUserId}>
               <div className="flex justify-evenly bg-gray-100 p-4">
               <span><b>Name:</b> {emp.assignedUserName} </span>
               <span className="ml-5"><b>Assigned Date:</b> {emp.assignedDate}</span>
               <span>
-                 <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={()=>navigate(`/documents/${emp.assignedUserId}`)}>
-                View Documents
-                </button>
+                 <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={()=>navigate(`/documents/${emp.assignedId}`)}>
+                  View Documents
+                 </button>
               </span>
               </div>
-              {!isTravelStarted && (<TravelDocumentUpload assignedUserId={emp.assignedUserId}/> )}
+              {!isTravelStarted && (<TravelDocumentUpload assignedId={emp.assignedId}/> )}
               {isTravelStarted && (     
                  <div className="bg-white p-6 rounded shadow-md-6">
                  <ExpenseList expenses={expenses[emp.assignedId]|| []} refresh ={()=>fetchExpenses(emp.assignedId)}/>
-                  </div> )}
+                </div> )}
               <hr />
-            </li>
-            
+            </li>    
           ))}
         </ul>
       </div>
@@ -116,9 +109,8 @@ const TravelDetails = () => {
         open={openAssign}
         handleClose={() => setOpenAssign(false)}
         travelId={id}
-        refresh={fetchTravel}
-      />
-    </DashboardLayout>
+        refresh={fetchTravel}/>
+       </DashboardLayout>
   );
 };
 

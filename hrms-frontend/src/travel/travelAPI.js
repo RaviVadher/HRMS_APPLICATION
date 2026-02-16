@@ -39,13 +39,13 @@ export const assignEmployeeToTravel = async (travelId, employeeId) => {
 };
 
 // UPLOAD document
-export const uploadTravelDocument = async (assignedUserId,filetype,docname,file) => {
+export const uploadTravelDocument = async (assignedId,filetype,docname,file) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("docname",docname);
     formData.append("filetype", filetype);
   const res = await api.post(
-    `/travels/${assignedUserId}/documnets`,
+    `/travels/${assignedId}/documnets`,
     formData,{
     headers:{
       'Content-Type':'multipart/form-data'
@@ -64,9 +64,9 @@ export const getAllDocument = async (assignedId) => {
 };
 
 //view document
-export const getDocument = async (docId) => {
+export const getDocUrl = async (docId) => {
   const res = await api.get(
-    `/travels/${docId}/download`,
+    `/travels/${docId}/download`,{responseType:"blob"}
   );
   return res;
 };
@@ -117,5 +117,26 @@ export const getMyExpenses = async (assign_id) => {
   const res = await api.get(
     `/travels/${assign_id}/expense`
   );
+  console.log(res.data)
   return res.data;
 };
+
+
+//get proof list
+export const getExpeseProofs = async(expense_id)=>{
+   const res = await api.get(
+     `/travels/proof/${expense_id}`
+   );
+
+   return res.data;
+}
+
+//get proof url
+export const getProofUrl = async(proof_id)=>{
+   const res = await api.get(
+     `/travels/${proof_id}/downloadProofs`,
+     {responseType:"blob"}
+   );
+
+   return res;
+}

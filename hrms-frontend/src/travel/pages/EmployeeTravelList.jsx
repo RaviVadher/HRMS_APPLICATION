@@ -48,8 +48,7 @@ const EmployeeTravelList = () => {
                     className="text-blue-600"
                     onClick={() =>
                       navigate(`/travel/my/${t.assignedId}`)
-                    }
-                  >
+                    }>
                     View Details
                   </button>
                 </td>

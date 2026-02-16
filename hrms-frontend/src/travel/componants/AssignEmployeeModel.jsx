@@ -41,16 +41,12 @@ const AssignEmployeeModal = ({ open, handleClose, travelId, refresh }) => {
         <select
           className="w-full border p-2 rounded mb-4"
           value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-        >
+          onChange={(e) => setSelected(e.target.value)}>
           <option value="">Select Employee</option>
-
           {employees.map(emp => (
             <option key={emp.userId} value={emp.userId}>
               {emp.username} - {emp.rolename}
-
-            </option>
-          ))}
+            </option>))}
         </select>
 
         <div className="flex justify-end gap-2">
@@ -58,8 +54,7 @@ const AssignEmployeeModal = ({ open, handleClose, travelId, refresh }) => {
           <Button
             variant="contained"
             onClick={handleAssign}
-            disabled={!selected}
-          >
+            disabled={!selected}>
             Assign
           </Button>
         </div>

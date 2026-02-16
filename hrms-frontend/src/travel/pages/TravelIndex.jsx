@@ -1,14 +1,17 @@
 import HRTravelList from "./HRTravelList";
 import { useAuth } from "../../context/AuthContext";
-import { jwtDecode } from 'jwt-decode'
 import EmployeeTravelList from "./EmployeeTravelList";
 const TravelIndex = () => {
-  const { user,role } = useAuth();
+  const {user } = useAuth();
 
-   if(role=== "ROLE_Hr")
-  return <HRTravelList />;
+   if(user.role=== "ROLE_Manager")
+   return <HRTravelList />;
+   
+   if(user.role=== "ROLE_Employee")
+   return <EmployeeTravelList/>;
 
-  return <EmployeeTravelList/>;
+    return <HRTravelList />;
+
 };
 
 export default TravelIndex;

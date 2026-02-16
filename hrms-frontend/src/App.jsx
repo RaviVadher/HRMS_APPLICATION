@@ -8,8 +8,9 @@ import TravelDetails from "./travel/pages/TravelDetails";
 import TravelForm from "./travel/componants/TravelForm";
 import TravelDocumentUpload from "./travel/componants/TravelDocumentUpload";
 import SubmittedDocumentList from "./travel/componants/SubmittedDocumentList";
-import DownloadDoc from "./travel/componants/DownloadDoc";
 import EmployeeTravelDetails from "./travel/pages/EmployeeTravelDetails";
+import ExpenseProofList from "./travel/pages/ExpenseProofList";
+import OrgChart from "./orgChart/pages/OrgChart";
 
 function App() {
   return (
@@ -23,12 +24,13 @@ function App() {
         <Route path="/travel/:id" element={<TravelDetails />} />
         <Route path="/games" element={<Home />} />
         <Route path="/posts" element={<Home />} />
-        <Route path="/org-chart" element={<Home />} />
         <Route path="/jobs" element={<Home />} />
         <Route path="/upload" element={<TravelDocumentUpload />} />
         <Route path="/documents/:id" element={<SubmittedDocumentList />} />
-        <Route path="/dowload/:id" element={<DownloadDoc />} />
         <Route path="/travel/my/:id" element={<EmployeeTravelDetails/>} />
+        <Route path="/expenseProof/:id" element={<ExpenseProofList/>} />
+        <Route path="/org-chart" element={<OrgChart />} />
+
       </Routes>
     </BrowserRouter>
   );

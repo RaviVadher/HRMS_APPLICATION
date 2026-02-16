@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../layout/DashboardLayout";
 import ExpenseForm from "../componants/ExpenseForm";
 import {
@@ -11,7 +11,7 @@ import TravelDocumentUpload from "../componants/TravelDocumentUpload";
 
 const EmployeeTravelDetails = () => {
   const { id } = useParams();
-
+   const navigate = useNavigate();
   const [travel, setTravel] = useState(null);
   const [expenses, setExpenses] = useState([]);
 
@@ -45,15 +45,19 @@ const EmployeeTravelDetails = () => {
         <p><b>Destination:</b> {travel.destination}</p>
         <p><b>Dates:</b> {travel.startDate} → {travel.endDate}</p>
         <p><b>Description:</b> {travel.description}</p>
+         <span>
+                 <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={()=>navigate(`/documents/${id}`)}>
+                  View Documents
+                 </button>  </span>
       </div>
 
       {!started && (
-        <TravelDocumentUpload assignedUserId={id} />
+        <TravelDocumentUpload assignedId={id} />
       )}
 
       {started && (
         <>
-          <ExpenseForm assignedUserId={id} refresh={fetchData} travelId={travel.travelId}/>
+          <ExpenseForm assignedId={id} refresh={fetchData} travelId={travel.travelId}/>
           <ExpenseList expenses={expenses} total={total} />
         </>
       )}

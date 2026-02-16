@@ -1,4 +1,5 @@
 import axios from "axios";
+import ErrorHandler from "../utils/ErrorHandler";
 
 
 const api = axios.create({
@@ -16,5 +17,13 @@ api.interceptors.request.use((config)=>{
 
     return config;
 });
+
+api.interceptors.response.use(
+    res => res,
+    err => {
+        err.customMessage = ErrorHandler.getMessage(err);
+        return Promise.reject(err);
+    }
+)
 
 export default api;

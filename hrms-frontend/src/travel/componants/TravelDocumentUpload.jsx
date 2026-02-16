@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Button } from "@mui/material";
 import { uploadTravelDocument } from "../travelAPI";
 
-const TravelDocumentUpload = ({ assignedUserId }) => {
+const TravelDocumentUpload = ({ assignedId }) => {
   const [file, setFile] = useState(null);
   const [fileType, setFiletype] = useState(null);
   const [status, setStatus] = useState("uploading")
@@ -13,7 +13,8 @@ const TravelDocumentUpload = ({ assignedUserId }) => {
   const handleUpload = async () => {
     if (!file) return;
     try {
-      const res = await uploadTravelDocument(assignedUserId, fileType, docname, file);
+      console.log(assignedId);
+      const res = await uploadTravelDocument(assignedId, fileType, docname, file);
       setStatus("success")
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
