@@ -21,7 +21,7 @@ public class TravelAssign {
     @Column(name="pk_assign_id")
     private Long Id;
 
-    LocalDate assignedDate;
+    LocalDate assignedDate = LocalDate.now();
 
     @ManyToOne(optional = false,fetch=FetchType.LAZY)
     @JsonIgnore

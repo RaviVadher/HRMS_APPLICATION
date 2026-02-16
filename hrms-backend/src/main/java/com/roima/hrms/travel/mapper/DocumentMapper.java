@@ -16,7 +16,7 @@ public class DocumentMapper {
         dto.setDocumentId(documents.getId());
         dto.setSubmittedDate(documents.getUpload_at());
         dto.setDocumentName(documents.getDocumentName());
-        //dto.setDocumentImage(documentImage);
+        dto.setSubmittedBy(documents.getUser().getRole().getRole());
         return  dto;
     }
 }

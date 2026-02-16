@@ -7,6 +7,7 @@ import com.roima.hrms.travel.entity.SubmittedTravelDocs;
 import com.roima.hrms.travel.service.TravelDocumentService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,8 +60,11 @@ public class TravelDocumentController {
     public ResponseEntity<Resource> download( @PathVariable Long docId) {
 
         Resource file = travelDocumentService.downloadDocument(docId);
-        return  ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }
+        MediaType mediaType = MediaTypeFactory.getMediaType(file).orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        return  ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION,"inline; filename=\"" + file.getFilename() + "\"").body(file);    }
 
     //get all submited documents
     @GetMapping("/{assignedId}/uploaded")

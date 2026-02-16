@@ -16,4 +16,5 @@ public class SubmitedDocumentDto {
     private String documentName;
     private LocalDateTime submittedDate;
     private Resource  documentImage;
+    private String submittedBy;
 }

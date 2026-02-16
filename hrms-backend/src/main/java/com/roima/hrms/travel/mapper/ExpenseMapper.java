@@ -26,20 +26,20 @@ public class ExpenseMapper {
             dto.setHrRemark(expense.getHr_remarks());
         }
 
-        if(expense.getExpensesProof()!=null){
-
-            List<ExpenseProofResponseDto> downloadsUrl = expense.getExpensesProof()
-                    .stream()
-                    .map(proof -> {
-                        ExpenseProofResponseDto prf = new ExpenseProofResponseDto();
-                        prf.setProofId(proof.getId());
-                        prf.setDownloadsUrl("/api/expense/proof/"+proof.getId());
-
-                        return prf;
-                    })
-                    .toList();
-            dto.setProofs(downloadsUrl);
-        }
+//        if(expense.getExpensesProof()!=null){
+//
+//            List<ExpenseProofResponseDto> downloadsUrl = expense.getExpensesProof()
+//                    .stream()
+//                    .map(proof -> {
+//                        ExpenseProofResponseDto prf = new ExpenseProofResponseDto();
+//                        prf.setProofId(proof.getId());
+//                        prf.setDownloadsUrl("/api/expense/proof/"+proof.getId());
+//
+//                        return prf;
+//                    })
+//                    .toList();
+//            dto.setProofs(downloadsUrl);
+//        }
 
         return dto;
     }

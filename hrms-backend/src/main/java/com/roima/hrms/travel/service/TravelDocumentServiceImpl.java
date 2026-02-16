@@ -54,9 +54,6 @@ public class TravelDocumentServiceImpl implements TravelDocumentService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         TravelAssign travelAssign = travelAssignRepository.findById(assignedId).orElseThrow(() -> new RuntimeException("required travel assign not found"));;
-       // TravelAssign travelAssign = travelAssignRepository.findByUser_idAndTravel_id(userPrincipal.getUserId(), travelId).orElseThrow(() -> new RuntimeException("travel not assigned"));
-        //RequiredDocument requiredDocument = requiredDocumentRepository.findById(requiredDocId).orElseThrow(() -> new RuntimeException("required document not found"));
-
         String path = fileStorageService.store(
                 file,
                 assignedId,

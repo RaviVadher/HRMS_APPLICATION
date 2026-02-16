@@ -1,12 +1,16 @@
 package com.roima.hrms.travel.service;
 
+import com.roima.hrms.mail.EmailService;
+import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.ChangeExpenseStatusDto;
 import com.roima.hrms.travel.dto.ExpenseCreateRequestDto;
+import com.roima.hrms.travel.dto.ExpenseProofResponseDto;
 import com.roima.hrms.travel.dto.ExpenseResponseDto;
 import com.roima.hrms.travel.entity.Expense;
 import com.roima.hrms.travel.entity.ExpenseProof;
 import com.roima.hrms.travel.entity.TravelAssign;
 import com.roima.hrms.travel.enums.ExpenseStatus;
+import com.roima.hrms.travel.exception.ExpenseSubmitNotAllowedException;
 import com.roima.hrms.travel.mapper.ExpenseMapper;
 import com.roima.hrms.travel.repository.ExpenseProofRepository;
 import com.roima.hrms.travel.repository.ExpenseRepository;
@@ -15,6 +19,7 @@ import com.roima.hrms.travel.repository.TravelRepository;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,13 +40,16 @@ public class ExpenseServiceImpl implements ExpenseService{
     private final ExpenseMapper expenseMapper;
     private final UserRepository userRepository;
     private final TravelRepository travelRepository;
+    private final EmailService emailService;
 
     public ExpenseServiceImpl(TravelAssignRepository travelAssignRepository,
                               FileStorageService fileStorageService,
                               ExpenseProofRepository expenseProofRepository,
                               ExpenseRepository expenseRepository,
                               ExpenseMapper expenseMapper,
-                              UserRepository userRepository, TravelRepository travelRepository) {
+                              UserRepository userRepository,
+                              TravelRepository travelRepository,
+                              EmailService emailService) {
         this.travelAssignRepository = travelAssignRepository;
         this.fileStorageService = fileStorageService;
         this.expenseProofRepository = expenseProofRepository;
@@ -49,6 +57,7 @@ public class ExpenseServiceImpl implements ExpenseService{
         this.expenseMapper = expenseMapper;
         this.userRepository = userRepository;
         this.travelRepository = travelRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -56,14 +65,13 @@ public class ExpenseServiceImpl implements ExpenseService{
     {
         Expense expense = new Expense();
         ExpenseProof expenseProof = new ExpenseProof();
-
         LocalDate entryDate = LocalDate.now();
         LocalDate start_date = travelRepository.findById(travel_id).get().getStart_date();
         LocalDate end_date = travelRepository.findById(travel_id).get().getEnd_date();
 
         if(!entryDate.isAfter(start_date) || entryDate.isAfter(end_date.plusDays(10))){
 
-            throw new RuntimeException("Currently Expense submission is not allowed");
+            throw new ExpenseSubmitNotAllowedException();
         }
 
         TravelAssign assign = travelAssignRepository.findById(assignId).orElseThrow(()->new RuntimeException("Invelid travel assign"));
@@ -84,8 +92,11 @@ public class ExpenseServiceImpl implements ExpenseService{
         expenseProof.setFile_path(path);
         expenseProof.setExpense(expense);
         expenseProof.setUser(assign.getUser());
-
         expenseProofRepository.save(expenseProof);
+
+        User user = expenseProof.getExpense().getAssign().getTravel().getUser();
+        emailService.sendEmail(user.getEmail(),"Expense Submission", EmailTemplate.expenseSubmission(user.getName(),expense.getAssign().getTravel().getTravel_title(),expense.getAssign().getUser().getName()));
+
         return expenseMapper.toDto(expense);
     }
 
@@ -115,4 +126,27 @@ public class ExpenseServiceImpl implements ExpenseService{
 
         return expenseMapper.toDto(expense);
     }
+
+   @Override
+    public List<ExpenseProofResponseDto> getExpenseProofDetail(Long expenseId)
+   {
+       return expenseProofRepository.findByExpense_id(expenseId)
+               .stream()
+               .map(p -> new ExpenseProofResponseDto(
+                       p.getId(),
+                       p.getFile_path(),
+                       p.getUploaded_at()
+
+               ))
+               .toList();
+
+   }
+
+   @Override
+   public Resource downloadProof(Long proofId){
+
+        ExpenseProof proof = expenseProofRepository.findById(proofId).orElseThrow(()->new RuntimeException("Invelid expense proof"));
+        return  fileStorageService.load(proof.getFile_path());
+    }
+
 }

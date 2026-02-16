@@ -22,4 +22,18 @@ public class EmailTemplate {
                HR Team
                """.formatted(name,travelTitle,start,end);
     }
+
+    public static String expenseSubmission(String reciever,String travelTitle,String sender )
+    {
+        return """
+               Hello %s,
+               
+               %s has submit expense for %s travel.
+               
+               please login into HRMS portal and take proper action for that.
+               
+               Regards,
+               HRMS Team
+               """.formatted(reciever,sender,travelTitle);
+    }
 }
