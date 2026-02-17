@@ -1,4 +1,4 @@
-package com.roima.hrms.travel.service;
+package com.roima.hrms.common;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -24,7 +24,7 @@ public class FileStorageService {
     }
 
     //store the file in uploads folder
-    public String store(MultipartFile file,Long travelId,Long userId, String docName) {
+    public String store(MultipartFile file,Long travelId,Long userId, String docName,String modulename) {
 
         try{
             if(file.isEmpty()){
@@ -35,9 +35,9 @@ public class FileStorageService {
             String fileName = docName+"_"+ System.currentTimeMillis()+ extension;
 
             Path dir = rootLocation
-                    .resolve("travels")
-                    .resolve("travel_"+travelId)
-                    .resolve("user_"+userId);
+                    .resolve(modulename)
+                    .resolve(modulename+"_"+travelId)
+                    .resolve(modulename+"_"+userId);
             Files.createDirectories(dir);
 
             Path destination = dir.resolve(fileName);

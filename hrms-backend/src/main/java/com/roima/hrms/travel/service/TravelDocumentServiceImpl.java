@@ -1,5 +1,6 @@
 package com.roima.hrms.travel.service;
 import com.roima.hrms.auth.model.UserPrincipal;
+import com.roima.hrms.common.FileStorageService;
 import com.roima.hrms.travel.dto.RequiredTravelDocumentRequestDto;
 import com.roima.hrms.travel.dto.SubmitedDocumentDto;
 import com.roima.hrms.travel.entity.RequiredDocument;
@@ -7,7 +8,6 @@ import com.roima.hrms.travel.entity.SubmittedTravelDocs;
 import com.roima.hrms.travel.entity.Travel;
 import com.roima.hrms.travel.entity.TravelAssign;
 import com.roima.hrms.travel.mapper.DocumentMapper;
-import com.roima.hrms.travel.mapper.ExpenseMapper;
 import com.roima.hrms.travel.repository.RequiredDocumentRepository;
 import com.roima.hrms.travel.repository.SubmittedTravelDocumentRepository;
 import com.roima.hrms.travel.repository.TravelAssignRepository;
@@ -17,7 +17,6 @@ import com.roima.hrms.user.repository.UserRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,7 +57,8 @@ public class TravelDocumentServiceImpl implements TravelDocumentService {
                 file,
                 assignedId,
                 travelAssign.getUser().getId(),
-                documentName
+                documentName,
+                "travel"
         );
 
         User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(() -> new RuntimeException("user not found"));

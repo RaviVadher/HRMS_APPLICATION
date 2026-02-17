@@ -2,11 +2,17 @@ package com.roima.hrms.openjob.entity;
 
 import com.roima.hrms.user.entity.User;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="job_cv_reviewers")
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class JobCvReviewer {
 
     @Id

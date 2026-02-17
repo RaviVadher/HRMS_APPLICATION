@@ -16,10 +16,10 @@ public class OrgChartService {
      public OrgChartService(UserRepository userRepository) {
          this.userRepository = userRepository;
      }
+
      public OrgChartDto getOrgChart(Long id) {
 
          User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-
          return OrgChartDto.builder()
                  .user(toDto(u))
                  .managerChain(getManager(u))

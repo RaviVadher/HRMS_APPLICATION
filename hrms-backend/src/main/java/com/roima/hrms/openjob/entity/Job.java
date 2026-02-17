@@ -5,11 +5,19 @@ import com.roima.hrms.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="jobs")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Job {
 
     @Id
@@ -38,10 +46,18 @@ public class Job {
     private String email_hr;
 
   @Enumerated(EnumType.STRING)
-    private JobStatus staus;
+    private JobStatus status;
 
   private LocalDateTime created_at;
   private LocalDateTime updated_at;
 
+  @PrePersist
+    void onCreate() {
+      created_at = LocalDateTime.now();
+    }
 
+    @PreUpdate
+    void onUpdate() {
+      updated_at = LocalDateTime.now();
+    }
 }

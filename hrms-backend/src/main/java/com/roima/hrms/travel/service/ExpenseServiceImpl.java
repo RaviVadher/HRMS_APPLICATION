@@ -1,9 +1,9 @@
 package com.roima.hrms.travel.service;
 
+import com.roima.hrms.common.FileStorageService;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.ChangeExpenseStatusDto;
-import com.roima.hrms.travel.dto.ExpenseCreateRequestDto;
 import com.roima.hrms.travel.dto.ExpenseProofResponseDto;
 import com.roima.hrms.travel.dto.ExpenseResponseDto;
 import com.roima.hrms.travel.entity.Expense;
@@ -86,7 +86,8 @@ public class ExpenseServiceImpl implements ExpenseService{
                 file,
                 travel_id,
                 assign.getUser().getId(),
-                "expense"
+                "expense",
+                "travel"
         );
 
         expenseProof.setFile_path(path);

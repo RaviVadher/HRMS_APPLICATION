@@ -36,4 +36,19 @@ public class EmailTemplate {
                HRMS Team
                """.formatted(reciever,sender,travelTitle);
     }
+
+    public static String sharedJob(String jobTitle,String userName )
+    {
+        return """
+               Hello,
+               
+               In our company we have job opening for %s.
+               
+               please find the attached Job description for more details.It is great opportunity
+               for you.
+               
+               Regards,
+               %s
+               """.formatted(jobTitle,userName);
+    }
 }
