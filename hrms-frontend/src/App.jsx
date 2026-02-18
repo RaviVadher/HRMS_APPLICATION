@@ -11,6 +11,9 @@ import SubmittedDocumentList from "./travel/componants/SubmittedDocumentList";
 import EmployeeTravelDetails from "./travel/pages/EmployeeTravelDetails";
 import ExpenseProofList from "./travel/pages/ExpenseProofList";
 import OrgChart from "./orgChart/pages/OrgChart";
+import JobPage from "./openJob/pages/JobPage";
+import CreateJobForm from "./openJob/componants/CreateJobForm";
+import JobDetails from "./openJob/pages/JobDetails";
 
 function App() {
   return (
@@ -24,12 +27,16 @@ function App() {
         <Route path="/travel/:id" element={<TravelDetails />} />
         <Route path="/games" element={<Home />} />
         <Route path="/posts" element={<Home />} />
-        <Route path="/jobs" element={<Home />} />
         <Route path="/upload" element={<TravelDocumentUpload />} />
         <Route path="/documents/:id" element={<SubmittedDocumentList />} />
         <Route path="/travel/my/:id" element={<EmployeeTravelDetails/>} />
         <Route path="/expenseProof/:id" element={<ExpenseProofList/>} />
         <Route path="/org-chart" element={<OrgChart />} />
+        
+        {/* jobs */}
+        <Route path="/jobs" element={<JobPage/>} />
+        <Route path="/job/createForm" element={<CreateJobForm/>}/>
+        <Route path="/job/:id" element={<JobDetails/>}/>
 
       </Routes>
     </BrowserRouter>

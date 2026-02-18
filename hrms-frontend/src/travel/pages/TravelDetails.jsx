@@ -21,8 +21,12 @@ const TravelDetails = () => {
 
   useEffect(() => {
     fetchTravel();
-    fetchAssignEmployee();
   }, [openAssign]);
+
+    useEffect(() => {
+    fetchAssignEmployee();
+  }, []);
+
 
   const fetchTravel = async () => {
     const res = await getTravelById(id);
@@ -110,6 +114,7 @@ const TravelDetails = () => {
         handleClose={() => setOpenAssign(false)}
         travelId={id}
         refresh={fetchTravel}/>
+        
        </DashboardLayout>
   );
 };

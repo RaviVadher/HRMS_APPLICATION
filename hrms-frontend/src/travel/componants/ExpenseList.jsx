@@ -17,6 +17,7 @@ const ExpenseList = ({ expenses,refresh }) => {
       console.log(status)
        refresh();
     };
+    
 
     const total = expenses.reduce(
       (sum,e) => sum +e.amount,0
