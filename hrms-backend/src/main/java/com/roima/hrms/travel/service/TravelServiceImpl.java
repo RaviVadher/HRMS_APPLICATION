@@ -113,7 +113,6 @@ public class TravelServiceImpl implements TravelService {
     public  TravelAssignResponseDto findMyTravelsAssign(Long assignId)
     {
         TravelAssign dto = travelAssignRepository.findById(assignId).orElseThrow(()-> new RuntimeException("assin not found"));
-
         return assignMapper.myTravel(dto);
 
     }

@@ -25,7 +25,7 @@ public class OrgChartController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('Hr','Manager','Employee')")
+    @PreAuthorize("hasRole('Employee')")
     public List<UserDto> search(@RequestParam String name) {
 
         return orgChartService.search(name);

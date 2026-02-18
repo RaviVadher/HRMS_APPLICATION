@@ -4,10 +4,7 @@ import com.roima.hrms.auth.jwt.JwtUtil;
 import com.roima.hrms.auth.model.UserPrincipal;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
-import com.roima.hrms.openjob.dto.JobCreateDto;
-import com.roima.hrms.openjob.dto.JobDto;
-import com.roima.hrms.openjob.dto.ReferRequestDto;
-import com.roima.hrms.openjob.dto.SharedJobResponseDto;
+import com.roima.hrms.openjob.dto.*;
 import com.roima.hrms.openjob.entity.Job;
 import com.roima.hrms.openjob.entity.JobCvReviewer;
 import com.roima.hrms.openjob.entity.Refer;
@@ -15,14 +12,17 @@ import com.roima.hrms.openjob.entity.SharedJob;
 import com.roima.hrms.openjob.enums.JobStatus;
 import com.roima.hrms.openjob.exception.JobNotFoundException;
 import com.roima.hrms.openjob.mapper.JobMapper;
+import com.roima.hrms.openjob.mapper.ReferMapper;
 import com.roima.hrms.openjob.mapper.SharedJobMapper;
 import com.roima.hrms.openjob.repository.JobCvReviewerRepository;
 import com.roima.hrms.openjob.repository.JobRepository;
 import com.roima.hrms.openjob.repository.ReferRepository;
 import com.roima.hrms.openjob.repository.SharedJobRepository;
 import com.roima.hrms.common.FileStorageService;
+import com.roima.hrms.travel.entity.ExpenseProof;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -67,48 +67,90 @@ public class JobServiceImpl implements JobService {
          this.referRepository = referRepository;
      }
 
-     @Override
-    public JobDto createJob(JobCreateDto dto, MultipartFile file) {
+//     @Override
+//    public JobDto createJob(JobCreateDto dto, MultipartFile file) {
+//
+//         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+//
+//         User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+//
+//         String path = fileStorageService.store(
+//                 file,
+//                 user.getId(),
+//                 user.getId(),
+//                 "JD",
+//                 "Job"
+//         );
+//
+//         Job job = new Job();
+//         job.setTitle(dto.getTitle());
+//         job.setJob_summary(dto.getSummary());
+//         job.setCreatedBy(user);
+//         job.setEmail_hr(user.getEmail());
+//         job.setCreated_at(LocalDateTime.now());
+//         job.setStatus(JobStatus.Open);
+//         job.setJd_path(path);
+//
+//        Job j=  jobRepository.save(job);
+//         if(dto.getReviewerIds()!=null)
+//         {
+//             List<User> reviewers = userRepository.findAllById(dto.getReviewerIds());
+//
+//             List<JobCvReviewer> list = reviewers.stream()
+//                     .map(u -> JobCvReviewer.builder()
+//                             .job(job)
+//                             .reviewer(u)
+//                             .build())
+//                     .toList();
+//
+//             jobCvReviewerRepository.saveAll(list);
+//         }
+//
+//         return JobMapper.toDto(j);
+//     }
 
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+@Override
+public JobDto createJob(JobCreateDto dto) {
 
-         User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-         String path = fileStorageService.store(
-                 file,
-                 user.getId(),
-                 user.getId(),
-                 "JD",
-                 "Job"
-         );
+    User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
-         Job job = new Job();
-         job.setTitle(dto.getTitle());
-         job.setJob_summary(dto.getSummary());
-         job.setCreatedBy(user);
-         job.setEmail_hr(user.getEmail());
-         job.setCreated_at(LocalDateTime.now());
-         job.setStatus(JobStatus.Open);
-         job.setJd_path(path);
+    String path = fileStorageService.store(
+            dto.getFile(),
+            user.getId(),
+            user.getId(),
+            "JD",
+            "Job"
+    );
 
-        Job j=  jobRepository.save(job);
-         if(dto.getReviewerIds()!=null)
-         {
-             List<User> reviewers = userRepository.findAllById(dto.getReviewerIds());
+    Job job = new Job();
+    job.setTitle(dto.getTitle());
+    job.setJob_summary(dto.getSummary());
+    job.setCreatedBy(user);
+    job.setEmail_hr(user.getEmail());
+    job.setCreated_at(LocalDateTime.now());
+    job.setStatus(JobStatus.Open);
+    job.setJd_path(path);
 
-             List<JobCvReviewer> list = reviewers.stream()
-                     .map(u -> JobCvReviewer.builder()
-                             .job(job)
-                             .reviewer(u)
-                             .build())
-                     .toList();
+    Job j=  jobRepository.save(job);
+    if(dto.getReviewerIds()!=null)
+    {
+        List<User> reviewers = userRepository.findAllById(dto.getReviewerIds());
+        List<JobCvReviewer> list = reviewers.stream()
+                .map(u -> JobCvReviewer.builder()
+                        .job(job)
+                        .reviewer(u)
+                        .build())
+                .toList();
 
-             jobCvReviewerRepository.saveAll(list);
-         }
+        jobCvReviewerRepository.saveAll(list);
+    }
+    return JobMapper.toDto(j);
+}
 
-         return JobMapper.toDto(j);
-     }
 
      @Override
      public List<JobDto> getAllJobs()
@@ -129,8 +171,7 @@ public class JobServiceImpl implements JobService {
      @Override
      public ResponseEntity<String> shareJob(Long jobId,String email)
      {
-          SharedJob sharedJob = new SharedJob();
-
+         SharedJob sharedJob = new SharedJob();
          Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
          UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
@@ -152,21 +193,20 @@ public class JobServiceImpl implements JobService {
      }
 
      @Override
-    public List<SharedJobResponseDto> findAllShered(Long jobId){
+     public List<SharedJobResponseDto> findAllShered(Long jobId){
         return sharedJobRepository.findByJob_JobId(jobId)
                  .stream()
                  .map(SharedJobMapper::toDto)
                  .toList();
-
     }
 
     @Override
-    public void refer(ReferRequestDto dto, MultipartFile file)
+    public void refer(ReferRequestDto dto)
     {
         Job job = jobRepository.findById(dto.getJobId()).orElseThrow(()->new JobNotFoundException("Job not found"));
 
         String path = fileStorageService.store(
-                file,
+                dto.getFile(),
                  dto.getJobId(),
                 dto.getJobId(),
                 "Refer",
@@ -187,7 +227,6 @@ public class JobServiceImpl implements JobService {
         refer.setUser(user);
         refer.setRefer_description(dto.getNote());
 
-
         List<String> to = collectionto(job);
         String cvPath =  path.toString();
         emailService.sendMailWithAttachmentALl(to,"Refes Job","hellow all",cvPath);
@@ -198,11 +237,8 @@ public class JobServiceImpl implements JobService {
     private List<String >collectionto (Job job)
     {
         List<String> list = new ArrayList<>();
-
         list.add(job.getEmail_hr());
-
         String defaultHr =  "md@123hrms.omc";
-
         list.add(defaultHr);
 
         List<String> reviewers = jobCvReviewerRepository.findByJob_JobId(job.getJobId())
@@ -215,4 +251,29 @@ public class JobServiceImpl implements JobService {
         return list;
     }
 
+    @Override
+    public List<ReferJobResponseDto> getRefer(Long jobId){
+         return referRepository.findByJob_JobId(jobId)
+                 .stream()
+                 .map(ReferMapper::toDto)
+                 .toList();
+    }
+
+    @Override
+    public Resource downloadCv(Long referId){
+
+        Refer ref = referRepository.findById(referId).orElseThrow(()->new RuntimeException("Invelid referId"));
+        return  fileStorageService.load(ref.getRefer_cvpath());
+    }
+
+    @Override
+    public ResponseEntity<String> changeJobStatus(Long jobId,ChangeStatusDto dto){
+
+         Job job = jobRepository.findById(jobId).orElseThrow(()->new JobNotFoundException("Job not found"));
+         job.setStatus(dto.getStatus());
+         job.setUpdated_at(LocalDateTime.now());
+         jobRepository.save(job);
+
+         return ResponseEntity.ok("Job Status Updated Successfully");
+    }
 }

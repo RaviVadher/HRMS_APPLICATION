@@ -15,5 +15,6 @@ public class JobCreateDto {
     private String title;
     private String summary;
     private List<Long> reviewerIds;
+    private MultipartFile file;
 
 }
