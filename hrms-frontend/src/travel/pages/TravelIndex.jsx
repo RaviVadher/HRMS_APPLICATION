@@ -1,16 +1,15 @@
 import HRTravelList from "./HRTravelList";
 import { useAuth } from "../../context/AuthContext";
 import EmployeeTravelList from "./EmployeeTravelList";
+import { CircularProgress } from "@mui/material";
 const TravelIndex = () => {
-  const {user } = useAuth();
+  const {user,loading } = useAuth();
 
-   if(user.role=== "ROLE_Manager")
+   if(loading) return <CircularProgress/>
+   if(user.role=== "ROLE_Hr")
    return <HRTravelList />;
-   
-   if(user.role=== "ROLE_Employee")
    return <EmployeeTravelList/>;
 
-    return <HRTravelList />;
 
 };
 

@@ -34,9 +34,8 @@ const OrgChart = () => {
 
       <SearchEmployee onSelect={load} />
 
-       <b>MANAGER CHAIN</b>
+       
       <ManagerChain managers={data.managerChain} onSelect={load} />
-       <b>EMPLOYEE</b>
       <EmployeeCard employee={data.user} highlight />
       <DirectReports reports={data.directReports} onSelect={load} />
 

@@ -77,6 +77,11 @@ export const getMyTravels = async () => {
   return res.data;
 };
 
+export const getTeamTravels = async () => {
+  const res = await api.get("/travels/team");
+  return res.data;
+};
+
 export const getMyTravelsById= async (id) => {
   const res = await api.get(`/travels/my/${id}`);
   return res.data;

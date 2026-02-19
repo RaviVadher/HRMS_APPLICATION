@@ -14,6 +14,7 @@ import OrgChart from "./orgChart/pages/OrgChart";
 import JobPage from "./openJob/pages/JobPage";
 import CreateJobForm from "./openJob/componants/CreateJobForm";
 import JobDetails from "./openJob/pages/JobDetails";
+import TeamTravel from "./travel/pages/TeamTravel";
 
 function App() {
   return (
@@ -31,7 +32,9 @@ function App() {
         <Route path="/documents/:id" element={<SubmittedDocumentList />} />
         <Route path="/travel/my/:id" element={<EmployeeTravelDetails/>} />
         <Route path="/expenseProof/:id" element={<ExpenseProofList/>} />
+        <Route path="/travel/team" element={<TeamTravel/>} />
         <Route path="/org-chart" element={<OrgChart />} />
+
         
         {/* jobs */}
         <Route path="/jobs" element={<JobPage/>} />
