@@ -1,5 +1,6 @@
 package com.roima.hrms.travel.service;
 
+import com.roima.hrms.auth.model.UserPrincipal;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.TravelAssignResponseDto;
@@ -15,6 +16,7 @@ import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -116,6 +118,21 @@ public class TravelServiceImpl implements TravelService {
         return assignMapper.myTravel(dto);
 
     }
+
+    @Override
+    public List<TravelAssignResponseDto> findMyTeamTravelsAssign()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long managerId = userPrincipal.getUserId();
+
+        return travelAssignRepository.findByUser_Manager_id(managerId)
+                .stream()
+                .map(AssignMapper::myTravel)
+                .toList();
+
+    }
+
 
 
 }

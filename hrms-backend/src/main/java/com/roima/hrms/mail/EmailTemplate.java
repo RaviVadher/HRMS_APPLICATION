@@ -51,4 +51,20 @@ public class EmailTemplate {
                %s
                """.formatted(jobTitle,userName);
     }
+
+    public static String referJob(Long jobId,String jobTitle,String referName,String friendName,String email )
+    {
+        return """
+               Hello,
+               
+               JOBID: %s
+               JOB Title: %s
+               
+               I %s Refer %s for new Job opening.Please find the attached CV for more details.
+               Refered Mail:%s
+               
+               Best Regards,
+               HRMS
+               """.formatted(jobId,jobTitle,referName,friendName,email);
+    }
 }

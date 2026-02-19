@@ -69,8 +69,7 @@ public class ExpenseServiceImpl implements ExpenseService{
         LocalDate start_date = travelRepository.findById(travel_id).get().getStart_date();
         LocalDate end_date = travelRepository.findById(travel_id).get().getEnd_date();
 
-        if(!entryDate.isAfter(start_date) || entryDate.isAfter(end_date.plusDays(10))){
-
+        if(!entryDate.isAfter(start_date.minusDays(1)) || entryDate.isAfter(end_date.plusDays(10))){
             throw new ExpenseSubmitNotAllowedException();
         }
 

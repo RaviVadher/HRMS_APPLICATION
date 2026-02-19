@@ -48,9 +48,10 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .requestMatchers("/auth/getall").hasRole("Employee")
-                        .requestMatchers("/api/travels/**").hasAnyRole("Employee", "Hr")
+                        .requestMatchers("/api/travels/**").hasAnyRole("Employee", "Hr","Manager")
                         .requestMatchers("/api/expenses/**").hasAnyRole("Employee", "Hr")
                         .requestMatchers("/api/admin/**").hasRole("Hr")
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS,"/**").permitAll()

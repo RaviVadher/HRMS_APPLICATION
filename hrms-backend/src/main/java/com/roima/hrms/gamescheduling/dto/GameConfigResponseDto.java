@@ -1,0 +1,22 @@
+package com.roima.hrms.gamescheduling.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class GameConfigResponseDto {
+
+    private Long gameId;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private Integer slotDuration;
+    private Integer capacity;
+}

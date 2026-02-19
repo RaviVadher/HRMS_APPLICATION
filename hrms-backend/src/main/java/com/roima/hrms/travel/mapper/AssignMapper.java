@@ -32,6 +32,7 @@ public class AssignMapper {
         dto.setEndDate(travelAssign.getTravel().getEnd_date());
         dto.setStartDate(travelAssign.getTravel().getStart_date());
         dto.setAssignedId(travelAssign.getId());
+        dto.setAssignedUserName(travelAssign.getUser().getName());
         return dto;
     }
 }

@@ -58,14 +58,24 @@ public class TravelController {
     }
 
 
+    //find own list of travel
     @GetMapping("/my")
+    @PreAuthorize("hasAnyRole('Employee','Manager')")
     public List<TravelAssignResponseDto> findMyTravelsAssign(){
         return travelService.findMyTravelsAssign();
     }
 
+    //find own travel in detail
     @GetMapping("/my/{assignId}")
     public TravelAssignResponseDto findMyTravelsAssignById(@PathVariable Long assignId  ){
         return travelService.findMyTravelsAssign(assignId);
+    }
+
+    @GetMapping("/team")
+    @PreAuthorize("hasRole('Manager')")
+    public  List<TravelAssignResponseDto> findTeamTravelsAssign(){
+
+        return travelService.findMyTeamTravelsAssign();
     }
 
 

@@ -16,6 +16,7 @@ public interface TravelService {
     List<TravelAssignResponseDto> findAllTravelsAssign(Long travelId);
     List<TravelAssignResponseDto> findMyTravelsAssign();
     TravelAssignResponseDto findMyTravelsAssign(Long assignId);
+    List<TravelAssignResponseDto> findMyTeamTravelsAssign();
 
 
 }
