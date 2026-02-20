@@ -9,9 +9,21 @@ import org.springframework.stereotype.Component;
 public class Scheduler {
 
     private final SlotService slotService;
+    private final BookingService bookingService;
 
-    @Scheduled(cron = "0 18 16 * * *")
+    @Scheduled(cron = "0 0 0 * * * ")
     public void generateSlot() {
         slotService.generateSlotForGames();
+    }
+
+
+    @Scheduled(cron = "0 * * * * *")
+    public void changeStatus() {
+        bookingService.processWaitingBookings();
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    public void incComplated() {
+        bookingService.updateStatsAfterSlotEnd();
     }
 }

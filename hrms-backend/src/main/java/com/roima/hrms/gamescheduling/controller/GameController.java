@@ -36,6 +36,7 @@ public class GameController {
         return gameService.getAllGames();
     }
 
+
     @PostMapping("/{gameId}/gameConfig")
     @PreAuthorize("hasRole('Hr')")
     public ResponseEntity<String> configGame(@PathVariable Long gameId, @RequestBody GameConfigRequestDto dto)
@@ -49,6 +50,7 @@ public class GameController {
         return gameService.getConfigGame(gameId);
     }
 
+
     @PatchMapping("/{gameId}/gameConfig")
     @PreAuthorize("hasRole('Hr')")
     public ResponseEntity<String> updateConfigGame(@PathVariable Long gameId, @RequestBody GameConfigRequestDto dto)
@@ -56,17 +58,20 @@ public class GameController {
         return gameService.updateConfigGame(gameId,dto);
     }
 
+
     @PostMapping("/{gameId}/gameInterest")
     public ResponseEntity<String> gameInterest(@PathVariable Long gameId)
     {
         return gameService.interestedGame(gameId);
     }
 
+
     @GetMapping("/{gameId}/gameInterest")
     public List<GameInterestUserDto> getGameInterested(@PathVariable Long gameId)
     {
         return gameService.getGameInterested(gameId);
     }
+
 
     @GetMapping("/gameInterest/my")
     public List<GameInterestUserDto> getMyGameInterested()

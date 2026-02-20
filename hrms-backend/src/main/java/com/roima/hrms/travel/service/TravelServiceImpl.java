@@ -8,6 +8,7 @@ import com.roima.hrms.travel.dto.TravelCreateRequestDto;
 import com.roima.hrms.travel.dto.TravelResponseDto;
 import com.roima.hrms.travel.entity.Travel;
 import com.roima.hrms.travel.entity.TravelAssign;
+import com.roima.hrms.travel.exception.WrongdateException;
 import com.roima.hrms.travel.mapper.AssignMapper;
 import com.roima.hrms.travel.mapper.TravelMapper;
 import com.roima.hrms.travel.repository.TravelAssignRepository;
@@ -50,8 +51,12 @@ public class TravelServiceImpl implements TravelService {
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        User user  =userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found"));
+        User user  =userRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("User not found"));
         Travel travel = travelMapper.toEntity(dto);
+        if(!travel.isEndDateAfterStartDate())
+        {
+            throw new WrongdateException("End date is must after start date");
+        }
         travel.setUser(user);
         travel.setCreated_date(LocalDate.now());
         return travelMapper.toDto(travelRepository.save(travel));

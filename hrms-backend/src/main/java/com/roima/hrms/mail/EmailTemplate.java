@@ -1,6 +1,9 @@
 package com.roima.hrms.mail;
 
+import com.roima.hrms.gamescheduling.enums.BookingStatus;
+
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class EmailTemplate {
 
@@ -66,5 +69,23 @@ public class EmailTemplate {
                Best Regards,
                HRMS
                """.formatted(jobId,jobTitle,referName,friendName,email);
+    }
+
+    public static String gameScheduling( String name,String bookedUserName, LocalTime start, LocalTime end, String game, BookingStatus status)
+    {
+        return """
+               Hello %s,
+               
+               Your friend %s booked slot for %s game.
+               Booking Information:
+               Status:%s
+               Slot Start Time:%s
+               Slot End Time:%s
+               
+               please login into HRMS portal for more details.
+               
+               Regards,
+               HRMS
+               """.formatted(name,bookedUserName,game,status,start,end);
     }
 }

@@ -8,6 +8,7 @@ import com.roima.hrms.gamescheduling.dto.GameResponseDto;
 import com.roima.hrms.gamescheduling.entity.Game;
 import com.roima.hrms.gamescheduling.entity.GameConfig;
 import com.roima.hrms.gamescheduling.entity.GameInterest;
+import com.roima.hrms.gamescheduling.entity.PlayerStats;
 import com.roima.hrms.gamescheduling.exception.ConfigExistException;
 import com.roima.hrms.gamescheduling.exception.NotFoundException;
 import com.roima.hrms.gamescheduling.mapper.GameConfigMapper;
@@ -16,6 +17,7 @@ import com.roima.hrms.gamescheduling.mapper.InterestUserMapper;
 import com.roima.hrms.gamescheduling.repository.GameConfigRepository;
 import com.roima.hrms.gamescheduling.repository.GameInterestRepository;
 import com.roima.hrms.gamescheduling.repository.GameRepository;
+import com.roima.hrms.gamescheduling.repository.PlayerStatsRepository;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -38,14 +40,18 @@ public class GameServiceImpl implements GameService {
     private final GameConfigRepository gameConfigRepository;
     private final UserRepository userRepository;
     private final GameInterestRepository gameInterestRepository;
+    private final PlayerStatsRepository  playerStatsRepository;
 
     public GameServiceImpl(GameRepository gameRepository,
                            GameConfigRepository gameConfigRepository,
-                           UserRepository userRepository, GameInterestRepository gameInterestRepository) {
+                           UserRepository userRepository,
+                           GameInterestRepository gameInterestRepository,
+                           PlayerStatsRepository playerStatsRepository) {
         this.gameRepository = gameRepository;
         this.gameConfigRepository = gameConfigRepository;
         this.userRepository = userRepository;
         this.gameInterestRepository = gameInterestRepository;
+        this.playerStatsRepository = playerStatsRepository;
     }
 
     //create game
@@ -139,10 +145,20 @@ public class GameServiceImpl implements GameService {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user =  userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
+        if(gameInterestRepository.existsByUserIdAndGameId(user.getId(),gameId))
+        {
+            return ResponseEntity.ok().body("You have already submitted Game interested successfully");
+        }
+
         GameInterest gameInterest = new GameInterest();
         gameInterest.setGame(game);
         gameInterest.setUser(user);
         gameInterestRepository.save(gameInterest);
+
+        PlayerStats stats = new PlayerStats();
+        stats.setGame(game);
+        stats.setUser(user);
+        playerStatsRepository.save(stats);
 
         return ResponseEntity.ok().body("Your Interest for Game is save successfully");
     }

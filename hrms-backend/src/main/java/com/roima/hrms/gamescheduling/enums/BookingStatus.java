@@ -1,7 +1,7 @@
 package com.roima.hrms.gamescheduling.enums;
 
 public enum BookingStatus {
-    Booked,
+    Conformed,
     Cancelled,
     Waiting,
 }

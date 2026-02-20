@@ -1,5 +1,7 @@
 package com.roima.hrms.gamescheduling.service;
 
+import com.roima.hrms.gamescheduling.dto.BookingRequestDto;
+import com.roima.hrms.gamescheduling.dto.BookingResponseDto;
 import com.roima.hrms.gamescheduling.dto.SlotResponseDto;
 
 import java.time.LocalDate;
@@ -11,4 +13,5 @@ public interface SlotService {
 
     void generateSlotForGame(Long gameId, LocalDate date);
     List<SlotResponseDto> getSlotForGame(Long gameId);
+
 }

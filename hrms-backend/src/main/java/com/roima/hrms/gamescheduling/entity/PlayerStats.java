@@ -32,5 +32,4 @@ public class PlayerStats {
     private Integer completedSlots = 0;
     private Integer currentCycleNo = 1;
 
-    private LocalDateTime lastPlayedAt;
 }

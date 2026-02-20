@@ -54,9 +54,7 @@ public class Travel {
     @OneToMany(mappedBy = "travel",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<TravelAssign> assignList = new ArrayList<>();
 
-    @AssertTrue(message = "end date must be after start date")
     public boolean isEndDateAfterStartDate() {
-
         return end_date!=null && start_date!=null && end_date.isAfter(start_date);
     }
 

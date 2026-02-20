@@ -12,7 +12,7 @@ import org.aspectj.weaver.patterns.ConcreteCflowPointcut;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="booking")
+@Table(name="booking",uniqueConstraints = {@UniqueConstraint(name="one_user_one_slot", columnNames = {"booked_by","fk_slot_id"})})
 @Getter
 @Setter
 @AllArgsConstructor

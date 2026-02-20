@@ -1,9 +1,11 @@
 package com.roima.hrms.common.exception;
 import com.roima.hrms.gamescheduling.exception.ConfigExistException;
 import com.roima.hrms.gamescheduling.exception.NotFoundException;
+import com.roima.hrms.gamescheduling.exception.TimeOutException;
 import com.roima.hrms.mail.MailNotSendException;
 import com.roima.hrms.openjob.exception.JobNotFoundException;
 import com.roima.hrms.travel.exception.ExpenseSubmitNotAllowedException;
+import com.roima.hrms.travel.exception.WrongdateException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +49,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError>notFound(NotFoundException ex) {
         return  buildError(ex.getMessage(),"Not found", HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(WrongdateException.class)
+    public ResponseEntity<ApiError>wrongDate(WrongdateException ex) {
+        return  buildError(ex.getMessage(),"Wrong date", HttpStatus.NOT_ACCEPTABLE);
+    }
+
+
+    @ExceptionHandler(TimeOutException.class)
+    public ResponseEntity<ApiError>timeOut(TimeOutException ex) {
+        return  buildError(ex.getMessage(),"Time out", HttpStatus.NOT_ACCEPTABLE);
+    }
+
 
     private ResponseEntity<ApiError> buildError(String msg, String error, HttpStatus status) {
         ApiError apiError = new ApiError(
