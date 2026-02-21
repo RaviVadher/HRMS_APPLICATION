@@ -8,6 +8,7 @@ import com.roima.hrms.travel.dto.TravelCreateRequestDto;
 import com.roima.hrms.travel.dto.TravelResponseDto;
 import com.roima.hrms.travel.entity.Travel;
 import com.roima.hrms.travel.entity.TravelAssign;
+import com.roima.hrms.travel.exception.AllReadyAssignedException;
 import com.roima.hrms.travel.exception.WrongdateException;
 import com.roima.hrms.travel.mapper.AssignMapper;
 import com.roima.hrms.travel.mapper.TravelMapper;
@@ -82,7 +83,10 @@ public class TravelServiceImpl implements TravelService {
     {
         User user  =userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
         Travel travel = travelRepository.findById(travelId).orElseThrow(()-> new RuntimeException("Travel not found"));
-
+      if(travelAssignRepository.existsByUser_idAndTravel_id(userId,travelId))
+      {
+          throw new AllReadyAssignedException("Travel has already been assigned");
+      }
         TravelAssign travelAssign = new TravelAssign();
         travelAssign.setTravel(travel);
         travelAssign.setUser(user);

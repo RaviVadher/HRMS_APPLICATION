@@ -4,6 +4,7 @@ import com.roima.hrms.gamescheduling.exception.NotFoundException;
 import com.roima.hrms.gamescheduling.exception.TimeOutException;
 import com.roima.hrms.mail.MailNotSendException;
 import com.roima.hrms.openjob.exception.JobNotFoundException;
+import com.roima.hrms.travel.exception.AllReadyAssignedException;
 import com.roima.hrms.travel.exception.ExpenseSubmitNotAllowedException;
 import com.roima.hrms.travel.exception.WrongdateException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -35,7 +37,7 @@ public class GlobalExceptionHandler {
         return  buildError(ex.getMessage(),"Mail not send", HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(UsernameNotFoundException.class)
+    @ExceptionHandler(UserPrincipalNotFoundException.class)
     public ResponseEntity<ApiError>userPrincipalNotFound(UserPrincipalNotFoundException ex) {
         return  buildError(ex.getMessage(),"User not found", HttpStatus.NOT_FOUND);
     }
@@ -61,6 +63,25 @@ public class GlobalExceptionHandler {
         return  buildError(ex.getMessage(),"Time out", HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(AllReadyAssignedException.class)
+    public ResponseEntity<ApiError>allReadyAssigned(AllReadyAssignedException ex) {
+        return  buildError(ex.getMessage(),"All ready assigned", HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(GeneralException.class)
+    public ResponseEntity<ApiError>general(AllReadyAssignedException ex) {
+        return  buildError(ex.getMessage(),ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+
+     @ExceptionHandler(Exception.class)
+     public ResponseEntity<ApiError>handleAll(Exception ex) {
+         Throwable root = ex;
+         while (root.getCause() != null) {
+             root = root.getCause();
+         }
+         return  buildError(ex.getMessage(),root.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+     }
 
     private ResponseEntity<ApiError> buildError(String msg, String error, HttpStatus status) {
         ApiError apiError = new ApiError(

@@ -14,7 +14,7 @@ public interface TravelAssignRepository extends JpaRepository<TravelAssign, Long
     Optional<TravelAssign> findByUser_idAndTravel_id(Long userId, Long travelId);
     List<TravelAssign> findByTravel_id(Long travelId);
     List<TravelAssign> findByUser_id(Long userId);
-
+    boolean existsByUser_idAndTravel_id(Long userId, Long travelId);
     List<TravelAssign> findByUser_Manager_id(Long managerId);
 
 }

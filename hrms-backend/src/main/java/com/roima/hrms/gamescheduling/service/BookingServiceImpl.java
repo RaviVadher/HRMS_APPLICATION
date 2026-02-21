@@ -1,6 +1,7 @@
 package com.roima.hrms.gamescheduling.service;
 
 import com.roima.hrms.auth.model.UserPrincipal;
+import com.roima.hrms.gamescheduling.dto.BookingHistoryResponseDto;
 import com.roima.hrms.gamescheduling.dto.BookingRequestDto;
 import com.roima.hrms.gamescheduling.dto.BookingResponseDto;
 import com.roima.hrms.gamescheduling.entity.Booking;
@@ -20,6 +21,7 @@ import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -71,6 +73,7 @@ public class BookingServiceImpl implements BookingService {
         //slot is free
         if (completed == 0 && slot.getStatus() == SlotStatus.Available) {
             slot.setStatus(SlotStatus.UnAvailable);
+            slot.setBookedCount(slot.getBookedCount() + 1);
             return createBooking(dto,userId, slot, BookingStatus.Conformed, "Slot Confirmed");
         }
         return createBooking(dto, userId,slot, BookingStatus.Waiting, "Slot not Confirmed");
@@ -244,4 +247,12 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.Cancelled);
 
     }
+
+
+    @Override
+    public List<BookingHistoryResponseDto> findHistory(Long gameId, Long userId)
+    {
+        return bookingRepository.findByUserIdAndGameId(userId,gameId);
+    }
+
 }

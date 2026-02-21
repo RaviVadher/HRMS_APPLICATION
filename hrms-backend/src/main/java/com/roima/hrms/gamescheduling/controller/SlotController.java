@@ -1,5 +1,6 @@
 package com.roima.hrms.gamescheduling.controller;
 
+import com.roima.hrms.gamescheduling.dto.BookingHistoryResponseDto;
 import com.roima.hrms.gamescheduling.dto.BookingRequestDto;
 import com.roima.hrms.gamescheduling.dto.BookingResponseDto;
 import com.roima.hrms.gamescheduling.dto.SlotResponseDto;
@@ -65,6 +66,11 @@ public class SlotController {
         return ResponseEntity.ok().body("slot cancelled successfully");
     }
 
+    @GetMapping("game/{gameId}/{userId}/getHistory")
+    public List<BookingHistoryResponseDto> getHistory(@PathVariable Long gameId,@PathVariable Long userId ){
 
+        return bookingService.findHistory(gameId, userId);
+
+    }
 
 }

@@ -15,6 +15,7 @@ public class SlotMapper {
         dto.setEndTime(slot.getEndTime());
         dto.setBookedCount(slot.getBookedCount());
         dto.setStatus(slot.getStatus());
+        dto.setGameId(slot.getGame().getId());
 
         return dto;
     }

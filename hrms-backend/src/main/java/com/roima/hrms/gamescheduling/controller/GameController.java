@@ -1,9 +1,6 @@
 package com.roima.hrms.gamescheduling.controller;
 
-import com.roima.hrms.gamescheduling.dto.GameConfigRequestDto;
-import com.roima.hrms.gamescheduling.dto.GameConfigResponseDto;
-import com.roima.hrms.gamescheduling.dto.GameInterestUserDto;
-import com.roima.hrms.gamescheduling.dto.GameResponseDto;
+import com.roima.hrms.gamescheduling.dto.*;
 import com.roima.hrms.gamescheduling.service.GameService;
 import com.roima.hrms.user.entity.User;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +21,7 @@ public class GameController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('Hr')")
-    public ResponseEntity<String> createGame(@RequestParam String gameName)
+    public ResponseEntity<String> createGame(@RequestBody String gameName)
     {
         return gameService.createGame(gameName);
     }
@@ -78,6 +75,7 @@ public class GameController {
     {
         return gameService.getMyGameInterested();
     }
+
 
 
 }

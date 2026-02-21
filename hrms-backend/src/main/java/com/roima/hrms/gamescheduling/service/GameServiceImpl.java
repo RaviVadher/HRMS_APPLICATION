@@ -62,7 +62,7 @@ public class GameServiceImpl implements GameService {
         game.setGameName(gameName);
         gameRepository.save(game);
 
-        return ResponseEntity.ok().body("Game created successfully");
+        return ResponseEntity.ok("Game created successfully");
     }
 
     //get All active and inActive games

@@ -17,13 +17,13 @@ public class Scheduler {
     }
 
 
-    @Scheduled(cron = "0 * * * * *")
-    public void changeStatus() {
-        bookingService.processWaitingBookings();
-    }
-
-    @Scheduled(cron = "0 * * * * *")
-    public void incComplated() {
-        bookingService.updateStatsAfterSlotEnd();
-    }
+//    @Scheduled(cron = "0 * * * * *")
+//    public void changeStatus() {
+//        bookingService.processWaitingBookings();
+//    }
+//
+//    @Scheduled(cron = "0 * * * * *")
+//    public void incComplated() {
+//        bookingService.updateStatsAfterSlotEnd();
+//    }
 }
