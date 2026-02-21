@@ -3,10 +3,11 @@ import {
   TextField,
   Button,
   MenuItem,
-  CircularProgress, Modal, Box,Select
+  CircularProgress, Modal, Box, Select
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getUsers, createJob } from "../jobAPI";
+import toast from "react-hot-toast";
 
 const CreateJobForm = () => {
 
@@ -48,32 +49,30 @@ const CreateJobForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try
-    {
+    try {
       setLoading(true);
+      if(!form.title.trim()) return toast.error("Title is required");
+      if(form.reviewerIds.length===0) return toast.error("Title is required");
+      if(!file) return toast.error("upload Jd file");
+
       const data = new FormData();
       data.append("title", form.title);
       data.append("summary", form.summary);
       data.append("file", file);
-      data.append("jd", file);
       form.reviewerIds.forEach(r => {
         data.append("reviewerIds", r)
       });
 
       await createJob(data);
-      alert("Job Created Successfully");
+      toast.success("Job Created Successfully");
       setForm({
         title: "",
         summary: "",
         reviewerIds: [],
       });
-      setFile(null);
-      navigate("/jobs")
-    } 
-    catch (err) {
-      console.error(err);
-      alert("Failed to create job");
-    } finally {
+      navigate("/jobs");
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -103,15 +102,15 @@ const CreateJobForm = () => {
             rows={3}
             required
           />
-        
 
-          <Select multiple  value={form.reviewerIds} fullWidth  label="Select Reviewers" onChange={handleReviewerChange}>
-             {reviewers.map((r) => (
+
+          <Select multiple value={form.reviewerIds} fullWidth label="Select Reviewers" onChange={handleReviewerChange}>
+            {reviewers.map((r) => (
               <MenuItem key={r.userId} value={r.userId}>
                 {r.username}
               </MenuItem>
-               ))}
-            </Select>
+            ))}
+          </Select>
 
           <div>
             <label className="block mb-1 font-medium">

@@ -1,9 +1,9 @@
 import axios from "axios";
-import ErrorHandler from "../utils/ErrorHandler";
+import toast from "react-hot-toast";
 
 
 const api = axios.create({
-    baseURL: "http://localhost:8081/api",
+    baseURL: "http://localhost:8080/api",
 });
 
 api.interceptors.request.use((config)=>{
@@ -19,9 +19,22 @@ api.interceptors.request.use((config)=>{
 });
 
 api.interceptors.response.use(
-    res => res,
+    res => {
+        if(res.data?.message || res.data?.msg)
+        {
+            toast.success(res.data.message || res.data.msg);
+        }
+        return res;
+    },
     err => {
-        err.customMessage = ErrorHandler.getMessage(err);
+        console.log(err.response)
+        const message =
+        err.response?.data?.msg ||
+        err.msg||
+        err.response?.data?.error ||
+        "unexpected error"
+
+        toast.error(message);
         return Promise.reject(err);
     }
 )

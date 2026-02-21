@@ -1,19 +1,8 @@
 import { useEffect, useState } from "react";
 import { getShares } from "../jobAPI";
 
-export default function ShareTable({ jobId }) {
-  const [shares, setShares] = useState([]);
-
-  useEffect(() => {
-    getShare(jobId)
-  }, [jobId]);
-
-  const getShare = async (jobId) => {
-    const data = await getShares(jobId);
-    console.log(data);
-    setShares(data);
-  }
-
+export default function ShareTable({ shares }) {
+ 
   return (
     <>
       <h2 className="text-2xl font-semibold">Shared Job List</h2>

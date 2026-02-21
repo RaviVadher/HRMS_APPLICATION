@@ -2,15 +2,22 @@ import { Modal, Box, TextField, Button,CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { referFriend } from "../jobAPI";
 import { blue } from "@mui/material/colors";
-// import { required } from "../validation";
+import toast from "react-hot-toast";
 
-export default function ReferForm({ open, close, job }) {
+export default function ReferForm({ open, close, job,getRefer }) {
 
   const [form, setForm] = useState({ friendName: "", friendEmail: "", note: "" });
   const [file, setFile] = useState(null);
   const [loading,setLoading] = useState(false);
 
   const submit = async () => {
+    
+
+    if(!form.friendName.trim()) return toast.error("name is required");
+    if(!form.friendEmail.trim()) return toast.error("email is required");
+    if(!/\S+@\S+\.\S+/.test(form.friendEmail)) return toast.error("email is not velid formate");
+    if(!file) return toast.error("CV is required")
+   try{
     setLoading(true);
     const data = new FormData();
     data.append("file", file);
@@ -19,8 +26,13 @@ export default function ReferForm({ open, close, job }) {
     data.append("note", form.note);
     data.append("jobId",job.jobId);
     await referFriend(data);
-    setLoading(false);
+    toast.success("Job Refered Successfully")
+    await getRefer(job.jobId)
     close();
+   }
+   finally{
+       setLoading(false);
+   }
   };
 
   return (
@@ -38,7 +50,7 @@ export default function ReferForm({ open, close, job }) {
         <TextField label="Note" fullWidth
           onChange={e => setForm({ ...form, note: e.target.value })} />
 
-        <input type="file" onChange={e => setFile(e.target.files[0])} />
+        <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} />
 
         <Button fullWidth variant="contained" onClick={submit}>
             {loading ? <CircularProgress color="success"   size={24} /> : "Submit"}   

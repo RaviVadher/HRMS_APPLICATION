@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TextField, Button } from "@mui/material";
 import { createExpense } from "../travelAPI";
+import toast from "react-hot-toast";
 
 const ExpenseForm = ({ assignedId, refresh,travelId }) => {
   const [amount, setAmount] = useState("");
@@ -18,7 +19,6 @@ const ExpenseForm = ({ assignedId, refresh,travelId }) => {
     form.append("assignedId",assignedId);
     form.append("file", file);
 
-    setError("");
 
     try{
     await createExpense(travelId, form);
@@ -26,40 +26,38 @@ const ExpenseForm = ({ assignedId, refresh,travelId }) => {
     setCategory("");
     setExpenseDate("")
     refresh();
-    setFile(null);
+    toast.success("expense submitted")
     }
-    catch(err)
+    finally
     {
-      setError(err.customMessage);
+    setFile(null);
     }
   };
 
   return (
     <div className="bg-white p-6 rounded shadow mb-6">
       <h3 className="font-semibold mb-4">Add Expense</h3>
-
-       {error && (
-         <div className="error-box"> {error} </div>
-       )}
       <div className="flex flex-col gap-4">
 
         <TextField
           label="Category"
           value={category}
           onChange={e => setCategory(e.target.value)}
-          
+          required
         />
         <TextField
           label="Amount"
           value={amount}
+          max={1000}
           onChange={e => setAmount(e.target.value)}
-          
+          required
         />
 
         <TextField
          type="date"
           value={expenseDate}
           onChange={e => setExpenseDate(e.target.value)}
+          required
         />
 
         <input

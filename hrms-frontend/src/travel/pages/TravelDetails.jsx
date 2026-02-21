@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getTravelById } from "../travelAPI";
+import { assignEmployeeToTravel, getTravelById } from "../travelAPI";
 import { getAssignById } from "../travelAPI";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import DashboardLayout from "../../layout/DashboardLayout";
 import { useAuth } from "../../context/AuthContext";
 import AssignEmployeeModal from "../componants/AssignEmployeeModel";
@@ -13,7 +13,6 @@ import { getMyExpenses } from "../travelAPI";
 const TravelDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [travel, setTravel] = useState(null);
   const [openAssign, setOpenAssign] = useState(false);
   const [employees,setEmployee] = useState([]);
@@ -24,14 +23,13 @@ const TravelDetails = () => {
   }, [openAssign]);
 
     useEffect(() => {
-    fetchAssignEmployee();
-  }, []);
+    fetchAssignEmployee(id);
+  }, [id]);
 
 
   const fetchTravel = async () => {
     const res = await getTravelById(id);
     setTravel(res);
-    console.log(res);
   };
 
 
@@ -45,16 +43,15 @@ const TravelDetails = () => {
   };
 
 
-  const  fetchAssignEmployee = async () => {
+  const  fetchAssignEmployee = async (id) => {
     const res = await getAssignById(id);
     setEmployee(res);
-    console.log(res);
     res.forEach(emp => {
     fetchExpenses(emp.assignedId);
     });
   };
 
-  if (!travel) return null;
+  if (!travel) return <DashboardLayout><CircularProgress/></DashboardLayout>
   const isTravelStarted = new Date(travel.startDate) <= new Date();
 
   return (
@@ -113,7 +110,7 @@ const TravelDetails = () => {
         open={openAssign}
         handleClose={() => setOpenAssign(false)}
         travelId={id}
-        refresh={fetchTravel}/>
+        refresh={fetchAssignEmployee}/>
         
        </DashboardLayout>
   );

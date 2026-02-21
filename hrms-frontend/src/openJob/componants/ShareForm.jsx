@@ -1,15 +1,19 @@
 import { Modal,Box,TextField,Button, CircularProgress} from "@mui/material";
 import { useState } from "react";
 import { shareJob } from "../jobAPI";
+import toast from "react-hot-toast";
 
-export default function ShareForm({open,close,job}){
+export default function ShareForm({open,close,job,getShare}){
 
   const [email,setEmail]=useState(""); 
   const [loading,setLoading] = useState(false);
 
   const submit=async()=>{
     setLoading(true);
+    if(!/\S+@\S+\.\S+/.test(email)) return toast.error("email is not velid formate");
     await shareJob(job.jobId,email);
+    toast.success("Job shared Successfully")
+    await getShare(job.jobId)
     setLoading(false);
     close();
 

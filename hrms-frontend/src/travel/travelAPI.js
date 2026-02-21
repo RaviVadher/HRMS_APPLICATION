@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import api from "../api/axios";
 //HR View:
 // GET all travels
@@ -20,8 +21,9 @@ export const getAssignById = async (id) => {
 
 // CREATE travel
 export const createTravel = async (data) => {
-  const res = await api.post("/travels/create", data);
-  return res.data;
+     const res = await api.post("/travels/create", data);
+     return res.data;
+
 };
 
 // GET employees list

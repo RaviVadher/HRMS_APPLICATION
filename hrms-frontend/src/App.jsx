@@ -15,6 +15,10 @@ import JobPage from "./openJob/pages/JobPage";
 import CreateJobForm from "./openJob/componants/CreateJobForm";
 import JobDetails from "./openJob/pages/JobDetails";
 import TeamTravel from "./travel/pages/TeamTravel";
+import GameList from "./games/pages/GameList";
+import GameConfig from "./games/pages/GameConfig";
+import Slots from "./games/pages/Slots";
+import BookedHistory from "./games/pages/BookedHistory";
 
 function App() {
   return (
@@ -26,7 +30,7 @@ function App() {
         <Route path="/travel" element={<TravelIndex />} />
         <Route path="/travel/create" element={<CreateTravel />} />
         <Route path="/travel/:id" element={<TravelDetails />} />
-        <Route path="/games" element={<Home />} />
+        <Route path="/games" element={<GameList />} />
         <Route path="/posts" element={<Home />} />
         <Route path="/upload" element={<TravelDocumentUpload />} />
         <Route path="/documents/:id" element={<SubmittedDocumentList />} />
@@ -40,6 +44,13 @@ function App() {
         <Route path="/jobs" element={<JobPage/>} />
         <Route path="/job/createForm" element={<CreateJobForm/>}/>
         <Route path="/job/:id" element={<JobDetails/>}/>
+
+        {/* game */}
+        <Route path="/games/:id/gameconfig" element={<GameConfig/>}/>
+          <Route path="/games/:id/slot" element={<Slots/>}/>
+          <Route path="/game/:gameId/bookingHistory/:userId" element={<BookedHistory/>}/>
+
+
 
       </Routes>
     </BrowserRouter>

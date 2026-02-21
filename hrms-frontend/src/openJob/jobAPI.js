@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import api from "../api/axios";
 
 //get all jobs
@@ -23,6 +24,7 @@ export const getJobById = async (id) => {
 export const createJob = async (data) => {
   const res = await api.post("/jobs/create", data);
   return res.data;
+  
 };
 
 

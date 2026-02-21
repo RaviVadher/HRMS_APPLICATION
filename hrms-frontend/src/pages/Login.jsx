@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Login(){
 
@@ -17,10 +18,11 @@ function Login(){
 
         if(result.success)
         {
+            toast.success("login succesfull")
             navigate("/home")
         }
         else{
-            alert(result.message)
+            toast.error(result.message);
         }
     };
     

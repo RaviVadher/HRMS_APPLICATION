@@ -1,19 +1,9 @@
 import { useEffect, useState } from "react";
 import { getRefers, getCvUrl } from "../jobAPI";
 
-export default function ReferTable({ jobId }) {
+export default function ReferTable({ refers }) {
 
-  const [refers, setReferes] = useState([]);
 
-  useEffect(() => {
-    getRefer(jobId);
-  }, [jobId]);
-
-  const getRefer = async (jobId) => {
-    const data = await getRefers(jobId);
-    console.log(data);
-    setReferes(data);
-  }
 
   const openDocument = async (referId) => {
     const res = await getCvUrl(referId);
