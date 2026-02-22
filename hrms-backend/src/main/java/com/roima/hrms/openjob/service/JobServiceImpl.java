@@ -13,10 +13,7 @@ import com.roima.hrms.openjob.exception.JobNotFoundException;
 import com.roima.hrms.openjob.mapper.JobMapper;
 import com.roima.hrms.openjob.mapper.ReferMapper;
 import com.roima.hrms.openjob.mapper.SharedJobMapper;
-import com.roima.hrms.openjob.repository.JobCvReviewerRepository;
-import com.roima.hrms.openjob.repository.JobRepository;
-import com.roima.hrms.openjob.repository.ReferRepository;
-import com.roima.hrms.openjob.repository.SharedJobRepository;
+import com.roima.hrms.openjob.repository.*;
 import com.roima.hrms.common.FileStorageService;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
@@ -44,13 +41,15 @@ public class JobServiceImpl implements JobService {
     private final EmailService emailService;
     private final JobCvReviewerRepository jobCvReviewerRepository;
     private final ReferRepository referRepository;
+    private final AppConfigRepository appConfigRepository;
      public JobServiceImpl(JobRepository jobRepository,
                            UserRepository userRepository,
                            FileStorageService fileStorageService,
                            SharedJobRepository sharedJobRepository,
                            EmailService emailService,
                            JobCvReviewerRepository jobCvReviewerRepository,
-                           ReferRepository referRepository
+                           ReferRepository referRepository,
+                           AppConfigRepository appConfigRepository
 
      ) {
          this.jobRepository = jobRepository;
@@ -60,6 +59,7 @@ public class JobServiceImpl implements JobService {
          this.emailService = emailService;
          this.jobCvReviewerRepository = jobCvReviewerRepository;
          this.referRepository = referRepository;
+         this.appConfigRepository = appConfigRepository;
      }
 
 //create job
@@ -200,8 +200,10 @@ public JobDto createJob(JobCreateDto dto) {
         List<String> list = new ArrayList<>();
         list.add(job.getEmail_hr());
 
-        String defaultHr =  "md@123hrms.omc";
-        list.add(defaultHr);
+        List<String>  defaultHr = appConfigRepository.findAll()
+                .stream().map(e->e.getValue()).toList();
+
+        list.addAll(defaultHr);
 
         List<String> reviewers = jobCvReviewerRepository.findByJob_JobId(job.getJobId())
         .stream()
