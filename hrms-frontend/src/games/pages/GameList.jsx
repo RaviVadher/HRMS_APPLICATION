@@ -5,6 +5,7 @@ import DashboardLayout from "../../layout/DashboardLayout";
 import { useAuth } from "../../context/AuthContext";
 import { CircularProgress, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { addInterest } from "../gameAPI";
 
 export default function GameList() {
     const [games, setGames] = useState([]);
@@ -27,26 +28,31 @@ export default function GameList() {
         toast.success("game created successfully");
     }
 
-    const loadGame = async()=>{
+    const loadGame = async () => {
         setLoad(true);
         const res = await fetchGame();
-       setGames(res);
-       setLoad(false);
+        setGames(res);
+        setLoad(false);
     }
 
-    if (loading || load) return (<DashboardLayout> <CircularProgress/> </DashboardLayout>)
+    const handleInterest = async (gameId) => {
+        await addInterest(gameId);
+        toast.success("Interest added successfully");
+    }
+
+    if (loading || load) return (<DashboardLayout> <CircularProgress /> </DashboardLayout>)
 
     return (
         <DashboardLayout>
 
             <div className="p-6">
-                <div className="grid grid-cols-2 ml-90 ">
+                <div className="flex items-center justify-between w-full mb-8 ">
                     <h1 className="text-2xl font-semibold mb-10">Games</h1>
 
                     {user?.role === "ROLE_Hr" && (
                         <>
-                            <Button className="w-full" variant="contained" onClick={() => setShowForm(!showForm)}>
-                                Create Game
+                            <Button className="" variant="contained" onClick={() => setShowForm(!showForm)}>
+                                + Create Game
                             </Button>
 
                             {showForm && (
@@ -63,7 +69,6 @@ export default function GameList() {
                         </>
                     )}
                 </div>
-                <hr />
                 <div className="grid md:grid-cols-2 gap-5">
                     {games.map(g => (
                         <div key={g.gameId} className="border rounded-lg p-4">
@@ -71,7 +76,7 @@ export default function GameList() {
                             <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">{g.gameName}</h2>
 
                             <div className="flex flex-col gap-3">
-                                <button className="w-  bg-blue-400 text-white py-2.5 px-5 rounded-lg font-semibold hover:bg-blue-300 transition duration-150" onClick={() => navigate("/home")}>
+                                <button className="w-  bg-blue-400 text-white py-2.5 px-5 rounded-lg font-semibold hover:bg-blue-300 transition duration-150" onClick={() => handleInterest(g.gameId)}>
                                     Add Interest
                                 </button>
                                 <button className="w-full  bg-blue-400 text-white py-2.5 px-5 rounded-lg font-semibold hover:bg-blue-300 transition duration-150" onClick={() => navigate(`/games/${g.gameId}/slot`)}>

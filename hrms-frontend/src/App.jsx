@@ -19,6 +19,8 @@ import GameList from "./games/pages/GameList";
 import GameConfig from "./games/pages/GameConfig";
 import Slots from "./games/pages/Slots";
 import BookedHistory from "./games/pages/BookedHistory";
+import AchievementsFeed from "./achievements/pages/achievementsFeed";
+import AchievementDetails from "./achievements/pages/AchievementDetails";
 
 function App() {
   return (
@@ -50,8 +52,10 @@ function App() {
           <Route path="/games/:id/slot" element={<Slots/>}/>
           <Route path="/game/:gameId/bookingHistory/:userId" element={<BookedHistory/>}/>
 
-
-
+        {/* achievements */}
+         <Route path="/achievements" element={<AchievementsFeed />}/>
+         <Route path="/achievements/:id" element={<AchievementDetails/>} />
+        
       </Routes>
     </BrowserRouter>
   );

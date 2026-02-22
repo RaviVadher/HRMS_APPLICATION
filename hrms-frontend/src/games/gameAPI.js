@@ -73,6 +73,12 @@ export const getHistory = async(gameId,userId)=>{
 export const cancelBooking = async(bookedId)=>
 {
      const res = await api.patch(`/slot/${bookedId}/cancel`);
-     toast.success(res.data);
      return res.data;
+}
+
+//add interest
+export const addInterest = async(gameId)=>
+{
+        const res = await api.post(`/games/${gameId}/gameInterest`);
+        return res.data;
 }

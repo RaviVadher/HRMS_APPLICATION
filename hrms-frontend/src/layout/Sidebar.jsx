@@ -11,7 +11,7 @@ const menuItems = [
   { name: "Org Chart", path: "/org-chart", icon: <AccountTreeIcon /> },
   { name: "Jobs", path: "/jobs", icon: <WorkIcon /> },
   { name: "Games", path: "/games", icon: <SportsEsportsIcon /> },
-  { name: "Achievements", path: "/posts", icon: <EmojiEventsIcon /> },
+  { name: "Achievements", path: "/achievements", icon: <EmojiEventsIcon /> },
 ];
 
 const Sidebar = () => {

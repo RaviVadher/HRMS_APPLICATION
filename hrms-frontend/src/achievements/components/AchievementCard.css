@@ -1,0 +1,95 @@
+/* Like Button Animations */
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes like-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) opacity(1);
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+/* Apply animations */
+.animate-heart-pop {
+  animation: heart-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.animate-like {
+  animation: like-pulse 0.6s ease-in-out !important;
+}
+
+/* Like button hover effect */
+.like-button {
+  position: relative;
+}
+
+.like-button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.like-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Smooth transitions for all like button states */
+.like-button span {
+  display: inline-block;
+}
+
+/* Floating hearts effect (optional enhancement) */
+@keyframes particle-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+.like-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 20px;
+  animation: particle-float 1s ease-out forwards;
+}
+
+/* Fallback line-clamp (used if Tailwind plugin isn't available) */
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.animate-heart-pop {
+  animation: heart-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
