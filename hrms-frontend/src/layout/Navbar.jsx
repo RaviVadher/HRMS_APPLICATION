@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Notification from "../pages/Notification";
 
 
 export default function Navbar() {
@@ -32,13 +33,16 @@ export default function Navbar() {
                 ) : (
                     <div className="flex items-center gap-4">
                         <Link
-                            to="/addtravel"
+                            to={`/profile/${user.id}`}
                             className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-600 hover:text-white">Profile </Link>
 
                         <button
                             onClick={handleLogout}
                             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
                             Logout</button>
+
+                           <Notification userId={user.id} />
+   
                     </div>
                 )}
             </div>

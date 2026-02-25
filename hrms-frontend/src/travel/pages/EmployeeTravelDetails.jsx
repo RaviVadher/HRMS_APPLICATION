@@ -11,7 +11,7 @@ import TravelDocumentUpload from "../componants/TravelDocumentUpload";
 
 const EmployeeTravelDetails = () => {
   const { id } = useParams();
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [travel, setTravel] = useState(null);
   const [expenses, setExpenses] = useState([]);
 
@@ -20,11 +20,12 @@ const EmployeeTravelDetails = () => {
   }, []);
 
   const fetchData = async () => {
-    const t = await getMyTravelsById (id);
+    const t = await getMyTravelsById(id);
     const e = await getMyExpenses(id);
+    console.log(t);
     setTravel(t);
-     setExpenses(e || []);
-     console.log(t)
+    setExpenses(e || []);
+    console.log(t)
   };
 
   if (!travel) return null;
@@ -37,6 +38,12 @@ const EmployeeTravelDetails = () => {
     0
   );
 
+  const totalPerDay = expenses.reduce((acc, expense) => {
+    const day = expense.expenseDate;
+    acc[day] = (acc[day] || 0) + expense.amount;
+    return acc;
+  }, {});
+
   return (
     <DashboardLayout>
       <h2 className="text-2xl mb-6">Travel Details</h2>
@@ -45,10 +52,10 @@ const EmployeeTravelDetails = () => {
         <p><b>Destination:</b> {travel.destination}</p>
         <p><b>Dates:</b> {travel.startDate} → {travel.endDate}</p>
         <p><b>Description:</b> {travel.description}</p>
-         <span>
-                 <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={()=>navigate(`/documents/${id}`)}>
-                  View Documents
-                 </button>  </span>
+        <span>
+          <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={() => navigate(`/documents/${id}`)}>
+            View Documents
+          </button>  </span>
       </div>
 
       {!started && (
@@ -57,7 +64,7 @@ const EmployeeTravelDetails = () => {
 
       {started && (
         <>
-          <ExpenseForm assignedId={id} refresh={fetchData} travelId={travel.travelId}/>
+          <ExpenseForm assignedId={id} refresh={fetchData} travelId={travel.travelId} total={totalPerDay} />
           <ExpenseList expenses={expenses} total={total} />
         </>
       )}

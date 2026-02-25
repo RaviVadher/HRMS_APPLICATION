@@ -10,7 +10,12 @@ export default function ShareForm({open,close,job,getShare}){
 
   const submit=async()=>{
     setLoading(true);
-    if(!/\S+@\S+\.\S+/.test(email)) return toast.error("email is not velid formate");
+    if(!/\S+@\S+\.\S+/.test(email))
+      {
+         setLoading(false);
+         close();
+         return toast.error("email is not velid formate");
+      } 
     await shareJob(job.jobId,email);
     toast.success("Job shared Successfully")
     await getShare(job.jobId)

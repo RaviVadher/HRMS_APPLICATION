@@ -21,24 +21,26 @@ import Slots from "./games/pages/Slots";
 import BookedHistory from "./games/pages/BookedHistory";
 import AchievementsFeed from "./achievements/pages/achievementsFeed";
 import AchievementDetails from "./achievements/pages/AchievementDetails";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/addtravel" element={<TravelForm />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/addtravel" element={<TravelForm />} />
         <Route path="/travel" element={<TravelIndex />} />
         <Route path="/travel/create" element={<CreateTravel />} />
         <Route path="/travel/:id" element={<TravelDetails />} />
         <Route path="/games" element={<GameList />} />
-        <Route path="/posts" element={<Home />} />
         <Route path="/upload" element={<TravelDocumentUpload />} />
         <Route path="/documents/:id" element={<SubmittedDocumentList />} />
         <Route path="/travel/my/:id" element={<EmployeeTravelDetails/>} />
         <Route path="/expenseProof/:id" element={<ExpenseProofList/>} />
         <Route path="/travel/team" element={<TeamTravel/>} />
+        
         <Route path="/org-chart" element={<OrgChart />} />
 
         

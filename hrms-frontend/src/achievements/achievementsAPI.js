@@ -122,15 +122,14 @@ export const deleteAchievement = async (id) => {
  * @param {string} id - Achievement ID
  * @returns {Promise} Updated achievement
  */
-export const toggleAchievementLike = async (id) => {
-  try {
-    const response = await api.post(
-      `${ACHIEVEMENTS_API_BASE}/${id}/like`
-    );
+
+export const toggleAchievementLike = async (postId, isLiked) => {
+  if (isLiked) {
+    const response = await api.delete(`${ACHIEVEMENTS_API_BASE}/${postId}/like`);
     return response.data;
-  } catch (error) {
-    console.error("Error toggling achievement like:", error);
-    throw error;
+  } else {
+   const response = await api.post(`${ACHIEVEMENTS_API_BASE}/${postId}/like`);
+    return response.data;
   }
 };
 
@@ -181,6 +180,7 @@ export const fetchComments = async (postId) => {
   }
 };
 
+//add comment
 export const addComment = async (postId, text) => {
   try {
     const response = await api.post(`${ACHIEVEMENTS_API_BASE}/${postId}/comments`, { text });
@@ -191,6 +191,7 @@ export const addComment = async (postId, text) => {
   }
 };
 
+//update comment
 export const updateComment = async (postId, commentId, text) => {
   try {
     const response = await api.put(`${ACHIEVEMENTS_API_BASE}/${postId}/comments/${commentId}`, { text });
@@ -201,6 +202,7 @@ export const updateComment = async (postId, commentId, text) => {
   }
 };
 
+//delete comment
 export const deleteComment = async (postId, commentId) => {
   try {
     const response = await api.delete(`${ACHIEVEMENTS_API_BASE}/${postId}/comments/${commentId}`);
@@ -227,3 +229,30 @@ export const searchAchievements = async (query) => {
     throw error;
   }
 };
+
+//delete post by Hr
+export const moderateDeletePost = async (postId, reason = "") => {
+  return api.delete(`${ACHIEVEMENTS_API_BASE}/${postId}/moderate`, {
+    params: { reason },
+  });
+};
+
+//delete post by author
+export const deletePost = async (postId) => {
+  return api.delete(`${ACHIEVEMENTS_API_BASE}/${postId}`);
+};
+
+//update post by author
+export const updatePost = async (postId, data) => {
+  return api.put(`${ACHIEVEMENTS_API_BASE}/${postId}`, data);
+};
+
+//media preview
+export const previewMedia = async (postId, mediaId) => {
+  return api.get(
+    `${ACHIEVEMENTS_API_BASE}/${postId}/media/${mediaId}/preview`,
+    { responseType: "blob" }
+  );
+};
+
+

@@ -48,7 +48,7 @@ const ExpenseList = ({ expenses,refresh }) => {
               <td className="p-2">{e.amount}</td>
               <td>{e.category}</td>
              <td>{e.expenseDate}</td>
-              {user.role ==="ROLE_Hr" && !e.reviewedDate &&(
+              {user.role ==="ROLE_Hr" && !e.reviewedDate ?(
                 <>
                 <td className="space-x-2" >
                 <select className="border p-1" onChange ={(ev)=> setStatus({...status,[e.expenseId]:ev.target.value,}) } >
@@ -61,12 +61,13 @@ const ExpenseList = ({ expenses,refresh }) => {
                  <button onClick={() => handleUpdate(e.expenseId)}>
                   Save
                  </button>
+          
               </td>
+              <td></td>
               </>
-              )}   
-               <td>{e.status}</td>
+              ):(<><td>{e.status}</td>  
                  <td>{e.hrRemark}</td> 
-                 <td>{e.reviewedDate}</td>
+                 <td>{e.reviewedDate}</td></>)} 
                  <td><button onClick={()=>navigate(`/expenseProof/${e.expenseId}`)}>VIEW</button></td>    
             </tr>
           ))}

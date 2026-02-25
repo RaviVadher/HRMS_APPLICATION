@@ -72,6 +72,8 @@ const TravelForm = () => {
         onChange={handleChange}
          error={!!err.startDate}
         helperText={err.startDate}
+        inputProps={{ min: new Date().toISOString().split('T')[0] }} 
+
       />
 
       <TextField
@@ -80,6 +82,8 @@ const TravelForm = () => {
         onChange={handleChange}
          error={!!err.endDate}
         helperText={err.endDate}
+        inputProps={{ min: new Date().toISOString().split('T')[0] }} 
+
       />
 
       <TextField

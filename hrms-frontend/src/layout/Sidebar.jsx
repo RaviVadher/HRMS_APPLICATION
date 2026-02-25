@@ -26,7 +26,7 @@ const Sidebar = () => {
             to={item.path}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg transition
-               ${isActive ? "bg-blue-600" : "hover:bg-gray-700"}`
+               ${isActive ? "bg-blue-600" : "hover:bg-blue-700"}`
             }
           >
             {item.icon}

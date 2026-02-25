@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useContext } from "react";
+import { useState, useEffect } from "react";
 import api from "../../api/axios";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../layout/DashboardLayout";
@@ -8,51 +7,86 @@ import CreateAchievementForm from "../components/CreateAchievementForm";
 
 const AchievementsFeed = () => {
   const { user } = useAuth();
+
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [pageNumber, setPageNumber] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
+
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const fallbackAvatar = (size = 40) => `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='${Math.floor(size/2.2)}' fill='%236b7280'>U</text></svg>`;
+  // search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tagFilter, setTagFilter] = useState("");
+  const [authorFilter, setAuthorFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  useEffect(() => {
-    const fetchAchievements = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fallbackAvatar = (size = 40) =>
+    `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='${Math.floor(
+      size / 2.2
+    )}' fill='%236b7280'>U</text></svg>`;
 
-        
-        const paginatedData = await api.get("/achievements", {
+  const fetchAchievements = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let response;
+
+      const hasFilters =
+        searchQuery || tagFilter || authorFilter || startDate || endDate;
+
+      if (hasFilters) {
+        response = await api.get("/achievements/search", {
           params: {
-            pageNumber: pageNumber,
-            pageSize: pageSize,
+            query: searchQuery || undefined,
+            tag: tagFilter || undefined,
+            author: authorFilter || undefined,
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
           },
         });
 
-        // Backend returns structure: { success, message, data: PaginatedResponse }
-        const responseData = paginatedData.data?.data || paginatedData.data;
-        
-        // Extract posts from content array
+        const posts = response.data?.data || response.data || [];
+        setAchievements(posts);
+        setTotalPages(1);
+      } else {
+        response = await api.get("/achievements", {
+          params: { pageNumber, pageSize },
+        });
+
+        const responseData = response.data?.data || response.data;
         const posts = responseData.content || [];
+
         setAchievements(posts);
         setTotalPages(responseData.totalPages || 0);
-        
-        console.log("Posts loaded:", posts);
-      } catch (err) {
-        console.error("Error fetching achievements:", err);
-        setError(
-          err.response?.data?.message || "Failed to load achievements"
-        );
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to load achievements");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchAchievements();
-  }, [pageNumber, pageSize]);
+  // debounce search
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchAchievements();
+    }, 400);
+    return () => clearTimeout(delay);
+  }, [
+    pageNumber,
+    searchQuery,
+    tagFilter,
+    authorFilter,
+    startDate,
+    endDate,
+  ]);
 
   const getAchievementIcon = (postType) => {
     const icons = {
@@ -61,23 +95,18 @@ const AchievementsFeed = () => {
       BADGE: "🏅",
       CERTIFICATE: "📜",
       RECOGNITION: "⭐",
-      POST: "✨",
-      default: "✨",
     };
-    return icons[postType] || icons.default;
+    return icons[postType] ;
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  };
 
   const handleCreateAchievementSuccess = (newAchievement) => {
-    // Add new achievement to the top of the list
     setAchievements((prev) => [newAchievement, ...prev]);
     setShowCreateForm(false);
   };
@@ -85,26 +114,25 @@ const AchievementsFeed = () => {
   return (
     <DashboardLayout>
       <div className="w-full max-w-6xl mx-auto">
-        {/* Header Section */}
+
+        {/* HEADER */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Achievements</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Achievements</h1>
           <p className="text-gray-600">
-            Celebrate milestones and achievements across your organization
+            Celebrate milestones across your organization
           </p>
         </div>
 
-        {/* Create Achievement Button */}
+        {/* CREATE BUTTON */}
         <div className="mb-6">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
           >
-            <span>✨</span>
-            Share an Achievement
+            ✨ Share Achievement
           </button>
         </div>
 
-        {/* Create Achievement Form */}
         {showCreateForm && (
           <CreateAchievementForm
             onSuccess={handleCreateAchievementSuccess}
@@ -112,177 +140,177 @@ const AchievementsFeed = () => {
           />
         )}
 
-        {/* Filter Buttons */}
+        {/* SEARCH FILTERS */}
+        <div className="bg-white p-4 rounded-lg shadow mb-6 grid md:grid-cols-6 gap-3">
+
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => {
+              setPageNumber(0);
+              setSearchQuery(e.target.value);
+            }}
+            className="border p-2 rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Tag"
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="border p-2 rounded"
+          />
+
+          <input
+            type="text"
+            placeholder="Author"
+            value={authorFilter}
+            onChange={(e) => setAuthorFilter(e.target.value)}
+            className="border p-2 rounded"
+          />
+
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border p-2 rounded"
+          />
+
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border p-2 rounded"
+          />
+
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setTagFilter("");
+              setAuthorFilter("");
+              setStartDate("");
+              setEndDate("");
+              setPageNumber(0);
+            }}
+            className="bg-gray-200 rounded font-medium"
+          >
+            Clear
+          </button>
+        </div>
+
+        {/* PAGINATION */}
         <div className="flex gap-3 mb-6">
-          {["previous", "next"].map((btn) => (
-            <button
-              key={btn}
-              onClick={() => {
-                if (btn === "previous" && pageNumber > 0) {
-                  setPageNumber(pageNumber - 1);
-                } else if (btn === "next" && pageNumber < totalPages - 1) {
-                  setPageNumber(pageNumber + 1);
-                }
-              }}
-              disabled={
-                loading ||
-                (btn === "previous" && pageNumber === 0) ||
-                (btn === "next" && pageNumber >= totalPages - 1)
-              }
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                loading || (btn === "previous" && pageNumber === 0) || (btn === "next" && pageNumber >= totalPages - 1)
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              {btn === "previous" ? "← Previous" : "Next →"}
-            </button>
-          ))}
-          <span className="px-4 py-2 text-gray-700 font-medium">
+          <button
+            disabled={loading || pageNumber === 0}
+            onClick={() => setPageNumber((p) => p - 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300"
+          >
+            ← Previous
+          </button>
+
+          <button
+            disabled={loading || pageNumber >= totalPages - 1}
+            onClick={() => setPageNumber((p) => p + 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-300"
+          >
+            Next →
+          </button>
+
+          <span className="px-4 py-2">
             Page {pageNumber + 1} of {Math.max(1, totalPages)}
           </span>
         </div>
 
-        {/* Loading State */}
+        {/* LOADING */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading achievements...</p>
-          </div>
+          <div className="text-center py-10">Loading achievements...</div>
         )}
 
-        {/* Error State */}
+        {/* ERROR */}
         {error && !loading && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <span className="text-red-600 text-lg mr-3">⚠️</span>
-              <div>
-                <h3 className="font-semibold text-red-900">Error Loading Achievements</h3>
-                <p className="text-red-700">{error}</p>
-              </div>
-            </div>
+          <div className="bg-red-100 text-red-700 p-4 rounded mb-6">
+            {error}
           </div>
         )}
 
-        {/* Empty State */}
-        {!loading && (!achievements || achievements.length === 0) && (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="text-6xl mb-4">🎯</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No Achievements Yet
-            </h3>
-            <p className="text-gray-600">
-              There are no achievements to display. Keep up the great work!
-            </p>
+        {/* EMPTY */}
+        {!loading && achievements.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-5xl">🎯</div>
+            <p>No achievements found</p>
           </div>
         )}
 
-        {/* Achievements Feed */}
-        {!loading && achievements && achievements.length > 0 && (
-          <div className="space-y-4">
-            {achievements.map((post) => (
-              <div
-                key={post.postId}
-                className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6 border-l-4 border-blue-600"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
-                    {/* Post Icon */}
-                    <div className="text-4xl">
-                      {getAchievementIcon(post.postType)}
-                    </div>
+        {/* LIST */}
+        <div className="space-y-4">
+          {achievements.map((post) => (
+            <div
+              key={post.postId}
+              className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600"
+            >
+              <div className="flex gap-4">
 
-                    {/* Achievement Details */}
-                    <div className="flex-1">
-                      <div className="font-semibold text-lg text-gray-900">
-                        <Link to={`/achievements/${post.postId}`} className="hover:underline">
-                          {post.title}
-                        </Link>
-                      </div>
-                      <p className="text-gray-600 text-sm mt-1">
-                        {post.description}
-                      </p>
+                <div className="text-4xl">
+                  {getAchievementIcon(post.postType)}
+                </div>
 
-                      {/* Media (image or video) - backend returns media: PostMediaDTO[] */}
-                      {post.media && post.media.length > 0 && (() => {
-                        const m = post.media[0] || {};
-                        const src = m.url || m.mediaUrl || m.fileUrl || m.path || m.src;
-                        const type = m.mediaType || m.mimeType || m.type || "";
-                        if (!src) return null;
-                        return (
-                          <div className="mt-3">
-                            {type && type.startsWith("image") ? (
-                              <img src={src} alt={post.title} className="w-full max-h-72 object-cover rounded" />
-                            ) : (
-                              <video controls className="w-full max-h-72 rounded">
-                                <source src={src} type={type || "video/mp4"} />
-                                Your browser does not support the video tag.
-                              </video>
-                            )}
-                          </div>
-                        );
-                      })()}
+                <div className="flex-1">
 
-                      {/* Author Info */}
-                      <div className="flex items-center gap-4 mt-3">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={post.author?.profilePicture || fallbackAvatar(32)}
-                            alt={post.author?.name}
-                            className="w-8 h-8 rounded-full bg-gray-200 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = fallbackAvatar(32);
-                            }}
-                          />
-                          <span className="text-sm text-gray-700">
-                            {post.author?.name} {post.author?.lastName}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {post.author?.department && `• ${post.author.department}`}
-                        </span>
-                      </div>
+                  <Link
+                    to={`/achievements/${post.postId}`}
+                    className="font-semibold text-lg hover:underline"
+                  >
+                    {post.title}
+                  </Link>
 
-                      {/* Tags */}
-                      {post.tags && (
-                        <div className="flex gap-2 mt-3">
-                          {post.tags.split(",").map((tag) => (
-                            <span
-                              key={tag.trim()}
-                              className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
-                            >
-                              {tag.trim()}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                  <p className="text-gray-600 text-sm mt-1">
+                    {post.description}
+                  </p>
+
+                 
+
+                  {/* AUTHOR */}
+                  <div className="flex items-center gap-2 mt-3">
+                    <img
+                      src={post.author?.profilePicture || fallbackAvatar(32)}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span className="text-sm">
+                      {post.author?.name} {post.author?.lastName}
+                    </span>
                   </div>
 
-                  {/* Date and Actions */}
-                  <div className="text-right">
-                    <div className="text-xs text-gray-500">
-                      {formatDate(post.createdAt)}
+                  {/* TAGS */}
+                  {post.tags && (
+                    <div className="flex gap-2 mt-2">
+                      {post.tags.split(",").map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                        >
+                          {tag.trim()}
+                        </span>
+                      ))}
                     </div>
+                  )}
+                </div>
 
-                    {/* Engagement Stats */}
-                    {(post.likeCount || post.commentCount) && (
-                      <div className="mt-3 text-sm text-gray-600">
-                        <button className="hover:text-blue-600 transition-colors mr-3">
-                          ❤️ {post.likeCount || 0}
-                        </button>
-                        <button className="hover:text-blue-600 transition-colors">
-                          💬 {post.commentCount || 0}
-                        </button>
-                      </div>
-                    )}
+                {/* RIGHT */}
+                <div className="text-right text-sm text-gray-500">
+                  {formatDate(post.createdAt)}
+
+                  <div className="mt-3">
+                    ❤️ {post.likeCount || 0} <br />
+                    💬 {post.commentCount || 0}
                   </div>
                 </div>
+
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+
       </div>
     </DashboardLayout>
   );

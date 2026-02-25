@@ -82,3 +82,9 @@ export const addInterest = async(gameId)=>
         const res = await api.post(`/games/${gameId}/gameInterest`);
         return res.data;
 }
+
+//dashboard stats
+export const fetchDashboard = async () => {
+    const res = await api.get("/slot/dashboard/upcoming");
+    return res.data;
+};

@@ -3,7 +3,7 @@ import { TextField, Button } from "@mui/material";
 import { createExpense } from "../travelAPI";
 import toast from "react-hot-toast";
 
-const ExpenseForm = ({ assignedId, refresh,travelId }) => {
+const ExpenseForm = ({ assignedId, refresh,travelId,total }) => {
   const [amount, setAmount] = useState("");
   const [category,setCategory] = useState("");
   const [expenseDate, setExpenseDate] = useState("");
@@ -12,8 +12,16 @@ const ExpenseForm = ({ assignedId, refresh,travelId }) => {
 
 
   const submit = async () => {
+
+   const currentTotal = total[expenseDate] || 0;
+
+   if (currentTotal + parseFloat(amount) > 2000) {
+   toast.error("Daily expense limit of $2000 exceeded.");
+   return;
+   } 
+
     const form = new FormData();
-    form.append("amount", amount);
+    form.append("amount", amount);  
     form.append("category", category);
     form.append("expenseDate", expenseDate);
     form.append("assignedId",assignedId);
@@ -47,8 +55,8 @@ const ExpenseForm = ({ assignedId, refresh,travelId }) => {
         />
         <TextField
           label="Amount"
+          type="number" 
           value={amount}
-          max={1000}
           onChange={e => setAmount(e.target.value)}
           required
         />

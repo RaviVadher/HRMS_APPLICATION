@@ -22,6 +22,7 @@ const BookedHistory = () => {
   }
 
   const cancalBooking = async (bookedId) => {
+    if(!confirm("Are you sure you want to cancel this booking?")) return ;
     await cancelBooking(bookedId);
     load();
   }
