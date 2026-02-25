@@ -4,19 +4,17 @@ import com.roima.hrms.auth.model.UserPrincipal;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.openjob.dto.*;
-import com.roima.hrms.openjob.entity.Job;
-import com.roima.hrms.openjob.entity.JobCvReviewer;
-import com.roima.hrms.openjob.entity.Refer;
-import com.roima.hrms.openjob.entity.SharedJob;
+import com.roima.hrms.openjob.entity.*;
 import com.roima.hrms.openjob.enums.JobStatus;
 import com.roima.hrms.openjob.exception.JobNotFoundException;
 import com.roima.hrms.openjob.mapper.JobMapper;
 import com.roima.hrms.openjob.mapper.ReferMapper;
 import com.roima.hrms.openjob.mapper.SharedJobMapper;
 import com.roima.hrms.openjob.repository.*;
-import com.roima.hrms.common.FileStorageService;
+import com.roima.hrms.common.filestorage.FileStorageService;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class JobServiceImpl implements JobService {
 
@@ -100,6 +98,7 @@ public JobDto createJob(JobCreateDto dto) {
                 .toList();
 
         jobCvReviewerRepository.saveAll(list);
+        log.info("Job is created");
     }
     return JobMapper.toDto(j);
 }
@@ -201,7 +200,7 @@ public JobDto createJob(JobCreateDto dto) {
         list.add(job.getEmail_hr());
 
         List<String>  defaultHr = appConfigRepository.findAll()
-                .stream().map(e->e.getValue()).toList();
+                .stream().map(AppConfig::getValue).toList();
 
         list.addAll(defaultHr);
 

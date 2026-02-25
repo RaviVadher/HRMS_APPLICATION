@@ -14,7 +14,6 @@ import lombok.Setter;
 public class AppConfig {
 
     @Id
-
     private String k;
 
     private String value;

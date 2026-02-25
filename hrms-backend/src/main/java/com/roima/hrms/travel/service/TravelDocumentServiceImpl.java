@@ -1,6 +1,6 @@
 package com.roima.hrms.travel.service;
 import com.roima.hrms.auth.model.UserPrincipal;
-import com.roima.hrms.common.FileStorageService;
+import com.roima.hrms.common.filestorage.FileStorageService;
 import com.roima.hrms.travel.dto.RequiredTravelDocumentRequestDto;
 import com.roima.hrms.travel.dto.SubmitedDocumentDto;
 import com.roima.hrms.travel.entity.RequiredDocument;
@@ -76,14 +76,14 @@ public class TravelDocumentServiceImpl implements TravelDocumentService {
         public Resource downloadDocument(Long id)
         {
             SubmittedTravelDocs doc =submittedTravelDocumentRepository.findById(id).orElseThrow(() -> new RuntimeException("document not found"));
-
-//            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//            boolean isOwner = doc.getTravelAssign().getUser().getId().equals(user.getId());
-//            boolean isHr = user.getRole().equals("Hr");
-//
-//            if(!isOwner && !isHr){
-//                throw new RuntimeException("document not found");
-//            }
+            UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User user = userPrincipal.getUser();
+            boolean isOwner = doc.getTravelAssign().getUser().getId().equals(user.getId());
+            boolean isHr = user.getRole().getRole().equals("Hr");
+            boolean isManager = doc.getTravelAssign().getUser().getManager().getId().equals(user.getId());
+            if(!isOwner && !isHr && !isManager){
+                throw new RuntimeException("document not found");
+            }
 
             return fileStorageService.load(doc.getFilepath());
 

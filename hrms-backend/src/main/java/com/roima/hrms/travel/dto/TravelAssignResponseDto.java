@@ -20,5 +20,6 @@ public class TravelAssignResponseDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private Long assignedId;
+    private String description;
 
 }

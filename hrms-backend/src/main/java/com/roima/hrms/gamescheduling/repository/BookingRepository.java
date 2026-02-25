@@ -6,6 +6,9 @@ import com.roima.hrms.gamescheduling.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
@@ -13,6 +16,16 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
 
 
     List<Booking> findBySlotIdAndStatus(Long slotId, BookingStatus bookingStatus);
+
+    @Query("""
+              select b
+              from Booking b
+              join b.slot s
+              where b.status = 'Conformed'
+             and (s.slotDate = :today and s.startTime > :now)
+             order by s.slotDate, s.startTime
+            """)
+    List<Booking> findUpcoming(LocalDate today, LocalTime now);
 
     @Query(""" 
           select new com.roima.hrms.gamescheduling.dto.BookingHistoryResponseDto(
@@ -25,4 +38,7 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
           order by b.bookedAt desc
           """)
     List<BookingHistoryResponseDto> findByUserIdAndGameId(Long userId, Long gameId);
+
+
+    boolean existsByBookedBy_IdAndStatusAndSlot_SlotDateAndSlot_EndTimeAfter(Long bookedById, BookingStatus bookingStatus, LocalDate date, LocalTime time);
 }

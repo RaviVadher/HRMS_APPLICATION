@@ -37,7 +37,6 @@ public class SlotServiceImpl implements SlotService {
     public void generateSlotForGames(){
 
         List<Game> games = gameRepository.findAll();
-
         for(Game game : games){
             generateSlotForGame(game.getId(), LocalDate.now());
         }
@@ -85,7 +84,6 @@ public class SlotServiceImpl implements SlotService {
                 .toList();
 
     }
-
 
 
 }

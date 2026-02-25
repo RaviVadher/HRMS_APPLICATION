@@ -1,4 +1,4 @@
-package com.roima.hrms.common;
+package com.roima.hrms.common.filestorage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -24,7 +24,7 @@ public class FileStorageService {
     }
 
     //store the file in uploads folder
-    public String store(MultipartFile file,Long travelId,Long userId, String docName,String modulename) {
+    public String store(MultipartFile file,Long modelId,Long userId, String docName,String modulename) {
 
         try{
             if(file.isEmpty()){
@@ -36,7 +36,7 @@ public class FileStorageService {
 
             Path dir = rootLocation
                     .resolve(modulename)
-                    .resolve(modulename+"_"+travelId)
+                    .resolve(modulename+"_"+modelId)
                     .resolve(modulename+"_"+userId);
             Files.createDirectories(dir);
 
@@ -44,7 +44,7 @@ public class FileStorageService {
             Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
             return destination.toString();
         } catch(IOException e){
-             throw new RuntimeException("failed to store fil",e);
+             throw new RuntimeException("failed to store file",e);
         }
 
     }

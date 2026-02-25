@@ -1,6 +1,9 @@
 package com.roima.hrms.travel.service;
 
 import com.roima.hrms.auth.model.UserPrincipal;
+import com.roima.hrms.common.notification.entity.NotificationType;
+import com.roima.hrms.common.notification.service.NotificationService;
+import com.roima.hrms.common.notification.service.NotificationServiceImpl;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.TravelAssignResponseDto;
@@ -34,16 +37,21 @@ public class TravelServiceImpl implements TravelService {
     private final TravelAssignRepository travelAssignRepository;
     private final EmailService emailService;
     private final AssignMapper assignMapper;
+    private final NotificationService notificationService;
 
 
     public TravelServiceImpl(TravelRepository travelRepository, TravelMapper travelMapper, UserRepository userRepository
-    , TravelAssignRepository travelAssignRepository, EmailService emailService, AssignMapper assignMapper) {
+    , TravelAssignRepository travelAssignRepository,
+                             EmailService emailService,
+                             AssignMapper assignMapper,
+                             NotificationService notificationService) {
         this.travelRepository = travelRepository;
         this.travelMapper = travelMapper;
         this.userRepository = userRepository;
         this.travelAssignRepository = travelAssignRepository;
         this.emailService = emailService;
         this.assignMapper = assignMapper;
+        this.notificationService = notificationService;
     }
 
 
@@ -91,6 +99,10 @@ public class TravelServiceImpl implements TravelService {
         travelAssign.setTravel(travel);
         travelAssign.setUser(user);
         travelAssign.setAssignedDate(LocalDate.now());
+
+
+        //notification
+        notificationService.crateNotification(user.getId(),"You have been assigned to a travel plan: "+travel.getTravel_title(), NotificationType.TravelAssign,travelId,false);
 
 
         //sending mail to assigned User

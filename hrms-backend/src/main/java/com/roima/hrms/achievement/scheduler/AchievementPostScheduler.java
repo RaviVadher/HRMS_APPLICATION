@@ -37,7 +37,7 @@ public class AchievementPostScheduler {
 
         LocalDate today = LocalDate.now();
         List<User> birthdayEmployees = userRepository.findByBirthdayToday(today);
-
+        User system= userRepository.findById(10013L).orElseThrow(()->new RuntimeException("User not found"));
         for (User employee : birthdayEmployees) {
             // Check if birthday post already exists for today
             if (!achievementPostRepository.existsByAuthorAndPostTypeAndCreatedAtDate(
@@ -47,7 +47,7 @@ public class AchievementPostScheduler {
                 birthdayPost.setTitle("Birthday Celebration");
                 birthdayPost.setDescription("Today is " + employee.getName() + "'s birthday!");
                 birthdayPost.setPostType(PostType.BIRTHDAY);
-                birthdayPost.setAuthor(employee); // System user or special system account
+                birthdayPost.setAuthor(system);
                 birthdayPost.setIsSystemGenerated(true);
                 birthdayPost.setVisibility(PostVisibility.ALL_EMPLOYEES);
                 birthdayPost.setIsDeleted(false);

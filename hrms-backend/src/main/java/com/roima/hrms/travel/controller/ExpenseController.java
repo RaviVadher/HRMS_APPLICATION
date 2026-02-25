@@ -39,14 +39,12 @@ public class ExpenseController {
             @RequestParam("expenseDate") LocalDate date,
             @RequestParam("file") MultipartFile file
     ) {
-        System.out.println("createExpense");
         return expenseService.createExpense(travel_id,assignId,category, amount,date,file);
     }
 
 
     @GetMapping("/{assign_id}/expense")
     public List<ExpenseResponseDto> getExpense(@PathVariable Long assign_id ){
-
         return expenseService.getExpenseDetail(assign_id);
     }
 

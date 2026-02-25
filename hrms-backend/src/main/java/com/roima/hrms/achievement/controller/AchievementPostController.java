@@ -663,7 +663,7 @@ public class AchievementPostController {
             log.info("Retrieved {} comments for post {}", comments.size(), postId);
 
             return ResponseEntity.ok(
-                    new ApiResponse<>(true, "Comments retrieved successfully", comments));
+                    new ApiResponse<>(true,"", comments));
 
         } catch (RuntimeException e) {
             log.warn("Post not found: {}", postId);

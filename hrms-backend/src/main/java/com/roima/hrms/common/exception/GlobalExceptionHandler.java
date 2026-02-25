@@ -3,6 +3,7 @@ import com.roima.hrms.gamescheduling.exception.ConfigExistException;
 import com.roima.hrms.gamescheduling.exception.NotFoundException;
 import com.roima.hrms.gamescheduling.exception.TimeOutException;
 import com.roima.hrms.mail.MailNotSendException;
+import com.roima.hrms.openjob.exception.InvalideFileFormateException;
 import com.roima.hrms.openjob.exception.JobNotFoundException;
 import com.roima.hrms.travel.exception.AllReadyAssignedException;
 import com.roima.hrms.travel.exception.ExpenseSubmitNotAllowedException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.awt.*;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
@@ -24,7 +26,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpenseSubmitNotAllowedException.class)
     public ResponseEntity<ApiError>expenseSubmitNotAllowed(ExpenseSubmitNotAllowedException ex) {
-         return  buildError(ex.getMessage(),"Expense submission not allowed", HttpStatus.NOT_ACCEPTABLE);
+         return  buildError(ex.getMessage(),ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(JobNotFoundException.class)
@@ -73,8 +75,14 @@ public class GlobalExceptionHandler {
         return  buildError(ex.getMessage(),ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(InvalideFileFormateException.class)
+    public ResponseEntity<ApiError>invalideFileFormate(InvalideFileFormateException ex) {
+        return buildError(ex.getMessage(),ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
 
-     @ExceptionHandler(Exception.class)
+
+
+    @ExceptionHandler(Exception.class)
      public ResponseEntity<ApiError>handleAll(Exception ex) {
          Throwable root = ex;
          while (root.getCause() != null) {
@@ -82,6 +90,8 @@ public class GlobalExceptionHandler {
          }
          return  buildError(ex.getMessage(),root.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
      }
+
+
 
     private ResponseEntity<ApiError> buildError(String msg, String error, HttpStatus status) {
         ApiError apiError = new ApiError(

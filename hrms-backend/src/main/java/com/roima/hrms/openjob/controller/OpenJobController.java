@@ -3,6 +3,7 @@ package com.roima.hrms.openjob.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roima.hrms.openjob.dto.*;
 import com.roima.hrms.openjob.enums.JobStatus;
+import com.roima.hrms.openjob.exception.InvalideFileFormateException;
 import com.roima.hrms.openjob.service.JobService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -26,12 +27,15 @@ public class OpenJobController {
     }
 
 
-
     //Create Job
     @PostMapping(value = "/create",consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('Hr')")
-    public JobDto createJob(@ModelAttribute JobCreateDto dto) throws Exception
+    public JobDto createJob(@ModelAttribute JobCreateDto dto)
     {
+        if(!"application/pdf".equals(dto.getFile().getContentType()))
+        {
+            throw new InvalideFileFormateException("JD must be in Pdf format");
+        }
         return jobService.createJob(dto);
     }
 
@@ -61,7 +65,6 @@ public class OpenJobController {
     }
 
     @GetMapping("/{job_id}/allShared")
-    @PreAuthorize("hasRole('Hr')")
     public List<SharedJobResponseDto> shareAllJob(@PathVariable Long job_id)
     {
         return jobService.findAllShered(job_id);
@@ -71,9 +74,12 @@ public class OpenJobController {
     @PostMapping(value = "/refer",consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> referJob(@ModelAttribute ReferRequestDto dto)
     {
-
+        if(!"application/pdf".equals(dto.getFile().getContentType()))
+        {
+            throw new InvalideFileFormateException("CV must be in Pdf format");
+        }
         jobService.refer(dto);
-        return ResponseEntity.ok("refered submitted");
+        return ResponseEntity.ok("refer submitted");
 
     }
 

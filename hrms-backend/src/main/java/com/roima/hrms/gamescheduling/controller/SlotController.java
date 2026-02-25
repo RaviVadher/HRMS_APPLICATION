@@ -1,10 +1,8 @@
 package com.roima.hrms.gamescheduling.controller;
 
-import com.roima.hrms.gamescheduling.dto.BookingHistoryResponseDto;
-import com.roima.hrms.gamescheduling.dto.BookingRequestDto;
-import com.roima.hrms.gamescheduling.dto.BookingResponseDto;
-import com.roima.hrms.gamescheduling.dto.SlotResponseDto;
+import com.roima.hrms.gamescheduling.dto.*;
 import com.roima.hrms.gamescheduling.service.BookingService;
+import com.roima.hrms.gamescheduling.service.Scheduler;
 import com.roima.hrms.gamescheduling.service.SlotService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,10 +16,12 @@ public class SlotController {
 
     private final SlotService slotService;
     private final BookingService bookingService;
+    private final Scheduler scheduler;
 
-    public SlotController(SlotService slotService, BookingService bookingService) {
+    public SlotController(SlotService slotService, BookingService bookingService,Scheduler scheduler) {
         this.slotService = slotService;
         this.bookingService = bookingService;
+        this.scheduler = scheduler;
     }
 
     @PostMapping("/generate")
@@ -71,6 +71,12 @@ public class SlotController {
 
         return bookingService.findHistory(gameId, userId);
 
+    }
+
+    @GetMapping("/dashboard/upcoming")
+    public List<UpcomingSlotDto> data()
+    {
+        return scheduler.getList();
     }
 
 }

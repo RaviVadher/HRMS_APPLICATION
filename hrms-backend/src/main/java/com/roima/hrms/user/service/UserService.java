@@ -2,12 +2,15 @@ package com.roima.hrms.user.service;
 
 import com.roima.hrms.auth.dto.LoginRequestDTO;
 import com.roima.hrms.auth.dto.RegisterRequestDTO;
+import com.roima.hrms.auth.model.UserPrincipal;
+import com.roima.hrms.user.dto.ProfileDto;
 import com.roima.hrms.user.dto.UserMapper;
 import com.roima.hrms.user.dto.UserResponceDto;
 import com.roima.hrms.user.entity.Role;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.RoleRepository;
 import com.roima.hrms.user.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,5 +56,25 @@ public class UserService {
                 .map(UserMapper::toDto)
                 .toList();
 
+    }
+
+    public ProfileDto getUserProfile(Long userId)
+    {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long id = userPrincipal.getUserId();
+
+        if(!userId.equals(id))
+        {
+            throw new IllegalArgumentException("You can only access your own profile");
+        }
+        User user = userRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("User not found"));
+        ProfileDto dto = new ProfileDto();
+        dto.setUserName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setBirthDate(user.getBirth_date());
+        dto.setJoiningDate(user.getJoining_date());
+        dto.setDesignation(user.getDesignation());
+
+        return dto;
     }
 }

@@ -160,7 +160,7 @@ public class GameServiceImpl implements GameService {
         stats.setUser(user);
         playerStatsRepository.save(stats);
 
-        return ResponseEntity.ok().body("Your Interest for Game is save successfully");
+        return ResponseEntity.ok("Your Interest for Game is save successfully");
     }
 
     //get all interested user by gameID

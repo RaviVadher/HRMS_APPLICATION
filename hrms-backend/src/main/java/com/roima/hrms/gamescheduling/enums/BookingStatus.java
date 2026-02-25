@@ -4,4 +4,5 @@ public enum BookingStatus {
     Conformed,
     Cancelled,
     Waiting,
+    Complated
 }

@@ -1,6 +1,6 @@
 package com.roima.hrms.travel.service;
 
-import com.roima.hrms.common.FileStorageService;
+import com.roima.hrms.common.filestorage.FileStorageService;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.ChangeExpenseStatusDto;
@@ -70,7 +70,11 @@ public class ExpenseServiceImpl implements ExpenseService{
         LocalDate end_date = travelRepository.findById(travel_id).get().getEnd_date();
 
         if(!entryDate.isAfter(start_date.minusDays(1)) || entryDate.isAfter(end_date.plusDays(10))){
-            throw new ExpenseSubmitNotAllowedException();
+            throw new ExpenseSubmitNotAllowedException("Expense Submission is not allowed");
+        }
+
+        if(date.isAfter(end_date) || date.isBefore(start_date) || date.isAfter(LocalDate.now())){
+            throw new ExpenseSubmitNotAllowedException("Please enter valid  date");
         }
 
         TravelAssign assign = travelAssignRepository.findById(assignId).orElseThrow(()->new RuntimeException("Invelid travel assign"));

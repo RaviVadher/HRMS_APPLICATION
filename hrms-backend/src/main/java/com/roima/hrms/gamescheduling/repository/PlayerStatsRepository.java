@@ -1,5 +1,6 @@
 package com.roima.hrms.gamescheduling.repository;
 
+import com.roima.hrms.gamescheduling.entity.BookingPlayer;
 import com.roima.hrms.gamescheduling.entity.Game;
 import com.roima.hrms.gamescheduling.entity.PlayerStats;
 import com.roima.hrms.user.entity.User;
@@ -26,4 +27,5 @@ public interface PlayerStatsRepository extends JpaRepository<PlayerStats, Long> 
     @Modifying
     @Query("update PlayerStats p set p.completedSlots= 0 where p.game.id =:gameId")
     void resetCycle(Long gameId);
+
 }

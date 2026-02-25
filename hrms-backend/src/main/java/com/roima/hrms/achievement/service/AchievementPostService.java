@@ -9,7 +9,7 @@ import com.roima.hrms.achievement.entity.PostType;
 import com.roima.hrms.achievement.entity.PostVisibility;
 import com.roima.hrms.achievement.repository.AchievementPostRepository;
 import com.roima.hrms.achievement.repository.PostMediaRepository;
-import com.roima.hrms.common.FileStorageService;
+import com.roima.hrms.common.filestorage.FileStorageService;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -473,7 +473,6 @@ public class AchievementPostService {
             log.info("Warning email sent to {} for post deletion", author.getEmail());
         } catch (Exception e) {
             log.error("Failed to send warning email to {}: {}", author.getEmail(), e.getMessage());
-            // Don't throw exception - deletion already processed
         }
     }
 

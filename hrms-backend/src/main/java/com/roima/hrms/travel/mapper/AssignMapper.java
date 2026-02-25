@@ -17,6 +17,7 @@ public class AssignMapper {
         dto.setAssignedDate(travelAssign.getTravel().getCreated_date());
         dto.setAssignedUserName(travelAssign.getUser().getName());
         dto.setAssignedId(travelAssign.getId());
+        dto.setDescription(travelAssign.getTravel().getTravel_description());
         return dto;
     }
 
@@ -33,6 +34,8 @@ public class AssignMapper {
         dto.setStartDate(travelAssign.getTravel().getStart_date());
         dto.setAssignedId(travelAssign.getId());
         dto.setAssignedUserName(travelAssign.getUser().getName());
+        dto.setDescription(travelAssign.getTravel().getTravel_description());
+
         return dto;
     }
 }
