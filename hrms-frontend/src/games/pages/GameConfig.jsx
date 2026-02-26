@@ -3,10 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { TextField, Button, CircularProgress } from "@mui/material";
 import DashboardLayout from "../../layout/DashboardLayout";
 import { getConfig, createConfig, editConfig } from "../gameAPI";
+import toast from "react-hot-toast";
 
 export default function GameConfig() {
     const { id } = useParams();
-    console.log(id);
     const navigate = useNavigate();
 
     const [form, setForm] = useState({
@@ -41,6 +41,11 @@ export default function GameConfig() {
     }, [id]);
 
     const handleSave = async () => {
+    
+        if(form.startTime > form.endTime) return toast.error("End time is must after start time");
+        if(!(form.slotDuration > 0) )return toast.error("slot duration must be positive");
+        if(!(form.capacity > 0)) return toast.error("slot capacity must be positive");
+
         setLoading(true);
         if (exists) {
             await editConfig(id, form);
@@ -56,9 +61,8 @@ export default function GameConfig() {
     if (loading) return <DashboardLayout><CircularProgress/></DashboardLayout>;
     return (
         <DashboardLayout>
-            <div className="p-6 max-w-md">
+            <div className="p-6 max-w-md border border-gray-300 rounded-lg align-middle mx-auto">
                 <h1 className="text-xl font-semibold mb-4">Game Configuration</h1>
-
                 <div className="flex flex-col gap-4">
                     {editMode ? (
                         <>
@@ -100,7 +104,6 @@ export default function GameConfig() {
                             <div>End Time: {form.endTime}</div>
                             <div>Slot Duration: {form.slotDuration}</div>
                             <div>Capacity: {form.capacity}</div>
-
                             <Button variant="contained" onClick={() => setEditMode(true)}>
                                 Edit Config
                             </Button>

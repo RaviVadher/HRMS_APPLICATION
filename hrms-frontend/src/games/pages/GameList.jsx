@@ -60,12 +60,13 @@ export default function GameList() {
     };
 
     const handleInterest = async (gameId) => {
-        try {
+            try{
             await addInterest(gameId);
             toast.success("Interest added");
-        } catch {
-            toast.error("Already added or error");
-        }
+            }catch(e){
+                console.log(e)
+            };
+    
     };
 
     const slotsByGame = dashboard.reduce((acc, slot) => {

@@ -27,18 +27,15 @@ const OrgChart = () => {
 
   return (
     <DashboardLayout>
-
+      <div className="max-w-5xl mx-auto bg-white shadow-md rounded-xl p-8 border border-gray-200">
       <h2 className="text-2xl font-semibold mb-6">
         Organization Chart
       </h2>
-
       <SearchEmployee onSelect={load} />
-
-       
       <ManagerChain managers={data.managerChain} onSelect={load} />
       <EmployeeCard employee={data.user} highlight />
       <DirectReports reports={data.directReports} onSelect={load} />
-
+      </div>
     </DashboardLayout>
   );
 };

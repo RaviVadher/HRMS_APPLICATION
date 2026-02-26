@@ -127,7 +127,7 @@ const AchievementsFeed = () => {
         <div className="mb-6">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
+            className="px-6 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-green-700"
           >
             ✨ Share Achievement
           </button>
@@ -277,7 +277,7 @@ const AchievementsFeed = () => {
                       className="w-8 h-8 rounded-full"
                     />
                     <span className="text-sm">
-                      {post.author?.name} {post.author?.lastName}
+                     {post.isSystemGenerated ? "HRMS" : post.author?.name} 
                     </span>
                   </div>
 

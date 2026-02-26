@@ -4,16 +4,14 @@ const DirectReports = ({ reports, onSelect }) => {
 
   return (
     <div>
-      <h3 className="font-semibold mb-3">
-        Direct Reports
-      </h3>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <b>Direct Reports</b>
+        <hr />
+      <div className="flex gap-3 mt-3 mb-6 flex-wrap">
         {reports.map(r => (
           <div
             key={r.id}
             onClick={() => onSelect(r.id)}
-            className="p-4 border rounded cursor-pointer hover:bg-gray-100 text-center">
+            className="cursor-pointer px-4 py-2 border border-black rounded hover:bg-gray-300">
             <p className="font-medium">{r.name}</p>
             <p className="text-sm text-gray-500">{r.designation}</p>
           </div>

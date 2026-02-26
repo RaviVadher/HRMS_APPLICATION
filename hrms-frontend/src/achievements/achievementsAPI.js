@@ -213,6 +213,16 @@ export const deleteComment = async (postId, commentId) => {
   }
 };
 
+export const deleteCommentHr = async (postId, commentId) => {
+  try {
+    const response = await api.delete(`${ACHIEVEMENTS_API_BASE}/${postId}/comments/${commentId}/moderate`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw error;
+  }
+};
+
 /**
  * Search achievements
  * @param {string} query - Search query
@@ -255,4 +265,24 @@ export const previewMedia = async (postId, mediaId) => {
   );
 };
 
+/* ================= COMMENT LIKE ================= */
+
+export const likeCommentHandle = async (commentId,isLiked) => {
+ 
+  if(!isLiked)
+  {
+       await api.post(`${ACHIEVEMENTS_API_BASE}/comment/${commentId}/like`);
+  }
+  else{
+         await api.delete(`${ACHIEVEMENTS_API_BASE}/comment/${commentId}/like`);
+  }
+  
+};
+
+
+
+export const getCommentLikeCount = async (commentId) => {
+  const res = await api.get(`${ACHIEVEMENTS_API_BASE}/comment/${commentId}/like/count`);
+  return res.data;
+};
 

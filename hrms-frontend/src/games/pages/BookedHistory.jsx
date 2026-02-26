@@ -51,7 +51,7 @@ const BookedHistory = () => {
 
           <tbody>
             {books.length===0?(
-               <h1 className="text-center"> No Booking Found</h1>
+            <tr><td colSpan="8" className="text-center p-4">No Booking Found</td></tr>
             ):( 
             books.map((t) => (
               <tr key={t.bookingId} className="border-t text-center">
@@ -63,11 +63,11 @@ const BookedHistory = () => {
                 <td>{t.endTime}</td>
                 <td>{t.status}</td>
                 <td>
-                  <button
+                  {(t.status ==="Confirmed" || t.status ==="Waiting")&& (<button
                     className="text-blue-600"
                     onClick={() => cancalBooking(t.bookingId)}>
                     Cancel
-                  </button>
+                  </button>)}
                 </td>
               </tr>
             )))}

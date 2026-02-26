@@ -5,11 +5,13 @@ import {
   toggleAchievementLike,
   fetchComments,
   addComment,
-  updateComment,
   deleteComment,
   deletePost,
   updatePost,
   moderateDeletePost,
+  likeCommentHandle,
+  getCommentLikeCount,
+  deleteCommentHr
 } from "../achievementsAPI";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../api/axios";
@@ -33,42 +35,45 @@ const AchievementDetails = () => {
   const [achievement, setAchievement] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
-  const [commentsLoading, setCommentsLoading] = useState(true);
-
   const [newComment, setNewComment] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editingText, setEditingText] = useState("");
 
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
+  /* ================= LOAD DATA ================= */
+
   useEffect(() => {
     if (!id) return;
 
     const load = async () => {
-      try {
-        setLoading(true);
-        const resp = await api.get(`/achievements/${id}`);
-        const data = resp.data?.data || resp.data;
-        setAchievement(data);
-        setEditTitle(data.title);
-        setEditDescription(data.description);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      const resp = await api.get(`/achievements/${id}`);
+      const data = resp.data?.data || resp.data;
+      setAchievement(data);
+      setEditTitle(data.title);
+      setEditDescription(data.description);
+      setLoading(false);
     };
 
     const loadComments = async () => {
-      try {
-        setCommentsLoading(true);
-        const data = await fetchComments(id);
-        setComments(Array.isArray(data) ? data : data?.content || []);
-      } finally {
-        setCommentsLoading(false);
-      }
+      const data = await fetchComments(id);
+      const list = Array.isArray(data) ? data : data?.content || [];
+
+      /* load like counts for each comment */
+      const enriched = await Promise.all(
+        list.map(async (c) => {
+          const cid = c.id || c.commentId;
+          const count = await getCommentLikeCount(cid);
+
+          return {
+            ...c,
+            likeCount: count,
+            isLiked: false // optional: backend can send this if you implement it
+          };
+        })
+      );
+
+      setComments(enriched);
     };
 
     load();
@@ -76,10 +81,10 @@ const AchievementDetails = () => {
   }, [id]);
 
   const isOwner = user && user.id === achievement?.author?.id;
-  console.log(isOwner);
   const isHR = user?.role === "ROLE_Hr";
 
-  /* ---------------- LIKE ---------------- */
+  /* ================= POST LIKE ================= */
+
   const handleLike = async () => {
     await toggleAchievementLike(
       achievement.postId,
@@ -91,41 +96,61 @@ const AchievementDetails = () => {
       isLikedByCurrentUser: !prev.isLikedByCurrentUser,
       likeCount:
         (prev.likeCount || 0) +
-        (prev.isLikedByCurrentUser ? -1 : 1),
+        (prev.isLikedByCurrentUser ? -1 : 1)
     }));
   };
 
-  /* ---------------- OWNER DELETE ---------------- */
+  /* ================= COMMENT LIKE ================= */
+
+  const handleCommentLike = async (comment) => {
+    const id = comment.id || comment.commentId;
+
+     await likeCommentHandle(id,comment.isLikedByCurrentUser)
+
+    setComments((prev) =>
+      prev.map((c) =>
+        (c.id || c.commentId) === id
+          ? {
+              ...c,
+              isLikedByCurrentUser: !c.isLikedByCurrentUser,
+              likeCount: c.likeCount + (c.isLikedByCurrentUser ? -1 : 1)
+            }
+          : c
+      )
+    );
+  };
+
+  /* ================= DELETE POST ================= */
+
   const handleOwnerDelete = async () => {
     if (!window.confirm("Delete your post?")) return;
-
     await deletePost(achievement.postId);
     navigate(-1);
   };
 
-  /* ---------------- HR MODERATE DELETE ---------------- */
   const handleModerateDelete = async () => {
     const reason = window.prompt("Reason:");
-    if (reason === null) return;
-
+    if (!reason) return;
     await moderateDeletePost(achievement.postId, reason);
     navigate(-1);
   };
 
-  /* ---------------- UPDATE POST ---------------- */
+  /* ================= UPDATE POST ================= */
+
   const handleUpdatePost = async () => {
     const resp = await updatePost(achievement.postId, {
       title: editTitle,
       description: editDescription,
       tags: achievement.tags,
-      visibility: achievement.visibility,
+      visibility: achievement.visibility
     });
 
     setAchievement(resp.data?.data || resp.data);
     setIsEditingPost(false);
   };
 
-  /* ---------------- COMMENTS ---------------- */
+  /* ================= ADD COMMENT ================= */
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
@@ -134,13 +159,14 @@ const AchievementDetails = () => {
       newComment.trim()
     );
 
+    created.likeCount = 0;
+    created.isLiked = false;
+
     setComments((prev) => [created, ...prev]);
     setNewComment("");
-    setAchievement((prev) => ({
-      ...prev,
-      commentCount: (prev.commentCount || 0) + 1,
-    }));
   };
+
+  /* ================= DELETE COMMENT ================= */
 
   const handleDeleteComment = async (comment) => {
     const cid = comment.id || comment.commentId;
@@ -151,15 +177,27 @@ const AchievementDetails = () => {
     );
   };
 
-  if (loading) {
+    const handleDeleteModaretComment = async (comment) => {
+    const cid = comment.id || comment.commentId;
+    await deleteCommentHr(achievement.postId, cid);
+
+    setComments((prev) =>
+      prev.filter((c) => (c.id || c.commentId) !== cid)
+    );
+  };
+
+  /* ================= LOADING ================= */
+
+  if (loading)
     return (
       <DashboardLayout>
         <div className="py-20 text-center">Loading...</div>
       </DashboardLayout>
     );
-  }
 
   if (!achievement) return null;
+
+  /* ================= UI ================= */
 
   return (
     <DashboardLayout>
@@ -201,24 +239,20 @@ const AchievementDetails = () => {
               <>
                 <input
                   value={editTitle}
-                  onChange={(e) =>
-                    setEditTitle(e.target.value)
-                  }
+                  onChange={(e) => setEditTitle(e.target.value)}
                   className="w-full border p-2 text-xl font-semibold rounded"
                 />
+
                 <textarea
                   value={editDescription}
-                  onChange={(e) =>
-                    setEditDescription(e.target.value)
-                  }
+                  onChange={(e) => setEditDescription(e.target.value)}
                   className="w-full border p-3 mt-4 rounded"
                   rows={5}
                 />
+
                 <div className="flex gap-3 mt-4">
                   <button
-                    onClick={() =>
-                      setIsEditingPost(false)
-                    }
+                    onClick={() => setIsEditingPost(false)}
                     className="px-4 py-2 bg-gray-200 rounded"
                   >
                     Cancel
@@ -243,24 +277,6 @@ const AchievementDetails = () => {
                   ).toLocaleString()}
                 </div>
 
-                <div className="flex items-center gap-3 mt-6">
-                  <img
-                    src={
-                      achievement.author?.profileImage ||
-                      fallbackAvatar(48)
-                    }
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <div className="font-semibold">
-                      {achievement.author?.name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {achievement.author?.designation}
-                    </div>
-                  </div>
-                </div>
-
                 <p className="mt-6 whitespace-pre-line">
                   {achievement.description}
                 </p>
@@ -277,19 +293,19 @@ const AchievementDetails = () => {
               />
             )}
 
-            {/* STATS */}
-            <div className="flex justify-between items-center mt-6 border-t pt-4">
+            {/* LIKE STATS */}
+            <div className="flex justify-between mt-6 border-t pt-4">
               <div className="text-sm text-gray-600">
-                ❤️ {achievement.likeCount} • 💬{" "}
-                {achievement.commentCount}
+                ❤️ {achievement.likeCount}
               </div>
 
               <button
                 onClick={handleLike}
-                className={`px-4 py-2 rounded ${achievement.isLikedByCurrentUser
+                className={`px-4 py-2 rounded ${
+                  achievement.isLikedByCurrentUser
                     ? "bg-red-600 text-white"
                     : "bg-gray-200"
-                  }`}
+                }`}
               >
                 {achievement.isLikedByCurrentUser
                   ? "❤️ Liked"
@@ -299,17 +315,14 @@ const AchievementDetails = () => {
 
             {/* COMMENTS */}
             <div className="mt-10">
-              <h3 className="font-semibold mb-4">
-                Comments
-              </h3>
+              <h3 className="font-semibold mb-4">Comments</h3>
 
               <textarea
                 value={newComment}
-                onChange={(e) =>
-                  setNewComment(e.target.value)
-                }
+                onChange={(e) => setNewComment(e.target.value)}
                 className="w-full border rounded p-3"
               />
+
               <div className="flex justify-end mt-2">
                 <button
                   onClick={handleAddComment}
@@ -320,40 +333,60 @@ const AchievementDetails = () => {
               </div>
 
               <div className="space-y-6 mt-6">
-                {comments.map((c) => (
-                  <div
-                    key={c.id || c.commentId}
-                    className="flex gap-3"
-                  >
-                    <img
-                      src={
-                        c.author?.profileImage ||
-                        fallbackAvatar(40)
-                      }
-                      className="w-10 h-10 rounded-full"
-                    />
-                    <div className="flex-1 bg-gray-50 p-4 rounded-xl border">
-                      <div className="font-semibold text-sm">
-                        {c.author?.name}
-                      </div>
-                      <p className="text-sm mt-2">
-                        {c.text}
-                      </p>
-                      {(user?.id ===
-                        c.author?.id ||
-                        isHR) && (
+                {comments.map((c) => {
+                  const cid = c.id || c.commentId;
+
+                  return (
+                    <div key={cid} className="flex gap-3">
+                      <img
+                        src={
+                          c.author?.profileImage ||
+                          fallbackAvatar(40)
+                        }
+                        className="w-10 h-10 rounded-full"
+                      />
+
+                      <div className="flex-1 bg-gray-50 p-4 rounded-xl border">
+
+                        <div className="font-semibold text-sm">
+                          {c.author?.name}
+                        </div>
+
+                        <p className="text-sm mt-2">{c.text}</p>
+
+                        <div className="flex gap-3 mt-3">
+
                           <button
-                            onClick={() =>
-                              handleDeleteComment(c)
-                            }
-                            className="text-red-500 text-xs mt-2"
+                            onClick={() => handleCommentLike(c)}
+                            className={`text-xs px-3 py-1 rounded ${
+                              c.isLikedByCurrentUser
+                                ? "bg-red-500 text-white"
+                                : "bg-gray-200"
+                            }`}
                           >
-                            Delete
+                            ❤️ {c.likeCount}
                           </button>
-                        )}
+
+                        { isHR ? (
+                            <button
+                              onClick={() =>handleDeleteModaretComment(c)}
+                              className="text-red-500 text-xs">
+                              Modarate Delete
+                            </button>
+                           ):(user?.id === c.author?.id &&
+                            (
+                              <button onClick={() => handleDeleteComment(c)} className="text-red-500 text-xs">
+                              Delete
+                            </button>
+                            )
+                          )}
+                          
+                        </div>
+
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

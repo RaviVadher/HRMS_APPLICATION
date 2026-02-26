@@ -8,18 +8,24 @@ import { CircularProgress } from "@mui/material";
 
 function Profile() {
 
-    const { user, loading } = useAuth();
+    const { user, loading, logout } = useAuth();
     const { id } = useParams();
     const [email, setEmail] = useState("");
     const [userName, setUsername] = useState("");
     const [birthDate, setBirthdate] = useState("");
     const [joiningDate, setJoinDate] = useState("");
     const [designation, setDesignation] = useState("");
+    const navigate = useNavigate();
 
 
     useEffect(() => {
         getProfile(id);
     }, [id]);
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
 
     const getProfile = async (id) => {
 
@@ -34,20 +40,29 @@ function Profile() {
     if (loading) return <DashboardLayout><CircularProgress size={24} /></DashboardLayout>
 
 
-return (
-    <DashboardLayout>
-        <div className=" flex mt-10 justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-center">Profile</h2>
-                <p><strong>Email:</strong> {email}</p>
-                <p><strong>Username:</strong> {userName}</p>
-                <p><strong>Birth Date:</strong> {birthDate}</p>
-                <p><strong>Join Date:</strong> {joiningDate}</p>
-                <p><strong>Designation:</strong> {designation}</p>
+    return (
+        <DashboardLayout>
+            <div className=" min-h-screen flex items-center justify-center bg-gray-100 px-4">
+                <div className="w-full max-w-md bg-white rounded-lg shadow-sm border p-6">
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Profile</h2>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Username:</strong> {userName}</p>
+                    <p><strong>Birth Date:</strong> {birthDate}</p>
+                    <p><strong>Join Date:</strong> {joiningDate}</p>
+                    <p><strong>Designation:</strong> {designation}</p>
+
+                    <div className="mt-6 pt-4 border-t">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+                            Logout
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </DashboardLayout>
-);
+
+        </DashboardLayout>
+    );
 }
 
 export default Profile;

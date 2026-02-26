@@ -1,6 +1,6 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardLayout from "../../layout/DashboardLayout";
-import {getTeamTravels} from "../travelAPI"
+import { getTeamTravels } from "../travelAPI"
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import { useAuth } from "../../context/AuthContext";
@@ -22,7 +22,7 @@ const TeamTravel = () => {
 
   return (
     <DashboardLayout>
-      <h2 className="text-2xl font-semibold mb-6">My Travels</h2>
+      <h2 className="text-2xl font-semibold mb-6">Team Travels</h2>
 
       <div className="bg-white rounded shadow">
         <table className="w-full">
@@ -41,16 +41,16 @@ const TeamTravel = () => {
           <tbody>
             {travels.map(t => (
               <tr key={t.assignedId} className="border-t text-center">
-             <td>{t.travelId}</td>
-              <td>{t.assignedUserName}</td>
+                <td>{t.travelId}</td>
+                <td>{t.assignedUserName}</td>
                 <td className="p-3">{t.destination}</td>
                 <td>{t.startDate}</td>
                 <td>{t.endDate}</td>
                 <td>{t.assignedBy}</td>
                 <td>
-                  <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={()=>navigate(`/documents/${t.assignedId}`)}>
-                  View Documents
-                 </button> 
+                  <button className="px-4 py-2 bg-blue-100 text-black rounded even:bg-green-500 hover:opacity-80" onClick={() => navigate(`/documents/${t.assignedId}`)}>
+                    View Documents
+                  </button>
                 </td>
               </tr>
             ))}

@@ -30,10 +30,20 @@ export default function Slots() {
     const resP = await getPlayers(id);
     const resM = await getMax(id);
     setSlots(resS);
+    console.log(resS);
     setPlayers(resP);
     setMaxPlayer(resM)
   };
 
+  const timeConvert = (time) =>
+  {
+    const [hours, minutes, seconds] = time.split(":");
+      const slotDateTime = new Date();
+      slotDateTime.setHours(hours, minutes, seconds, 0);
+      return slotDateTime < new Date();
+  }
+
+  const curDate = new Date();
   if (loading) return <DashboardLayout> <CircularProgress/></DashboardLayout>
   return (
     <DashboardLayout>
@@ -42,18 +52,27 @@ export default function Slots() {
         <hr />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {slots.map((slot) => (
-            <div
+          {slots.map((slot) =>(
+             <>
+            {timeConvert(slot.startTime) ?(
+               <div
               key={slot.slotId}
-              onClick={() => selectSlot(slot)}
-              className={`border rounded p-4 text-center cursor-pointer ${slot.status === "Available" ? "bg-green-100" : "bg-red-100 cursor-not-allowed"
-                }`}
-            >
+              className={"border rounded p-4 text-center  bg-gray-300 text-gray-500 cursor-not-allowed"}>
               {slot.startTime} - {slot.endTime} <br />
               <span>{slot.status}</span><br />
               BookedCount:<span>{slot.bookedCount}</span>
-
             </div>
+            ):
+            (<div
+              key={slot.slotId}
+              onClick={() => selectSlot(slot)}
+              className={`border rounded p-4 text-center cursor-pointer ${slot.status === "Available" ? "bg-green-100" : "bg-red-100 "}`}>
+              {slot.startTime} - {slot.endTime} <br />
+              <span>{slot.status}</span><br />
+              BookedCount:<span>{slot.bookedCount}</span>
+            </div>)
+            }
+            </>
           ))}
         </div>
 

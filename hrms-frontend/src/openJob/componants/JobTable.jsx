@@ -16,7 +16,10 @@ const JobTable = ({ jobs = [] }) => {
         </thead>
 
         <tbody>
-          {jobs.map((t) => (
+           {jobs.length===0?(
+            <tr><td colSpan="8" className="text-center p-4">No Jobs Found</td></tr>
+            ):(
+            jobs.map((t) => (
             <tr key={t.jobId} className="border-t text-center">
               <td className="p-3">{t.jobId}</td>
               <td>{t.title}</td>
@@ -29,8 +32,9 @@ const JobTable = ({ jobs = [] }) => {
                 </button>
               </td>
             </tr>
-          ))}
+          )))}
         </tbody>
+      
       </table>
     </div>
   );

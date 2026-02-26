@@ -17,21 +17,24 @@ const TravelTable = ({ travels = [] }) => {
         </thead>
 
         <tbody>
-          {travels.map((t) => (
-            <tr key={t.travelId} className="border-t text-center">
-              <td className="p-3">{t.destination}</td>
-              <td>{t.startDate}</td>
-              <td>{t.endDate}</td>
-              <td>
-                <button
-                  className="text-blue-600"
-                  onClick={() => navigate(`/travel/${t.travelId}`)}
-                >
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
+          {travels.length === 0 ? (
+            <tr><td>No Travel Found</td></tr>
+          ) :
+            (travels.map((t) => (
+              <tr key={t.travelId} className="border-t text-center">
+                <td className="p-3">{t.destination}</td>
+                <td>{t.startDate}</td>
+                <td>{t.endDate}</td>
+                <td>
+                  <button
+                    className="text-blue-600"
+                    onClick={() => navigate(`/travel/${t.travelId}`)}
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+            )))}
         </tbody>
       </table>
     </div>
