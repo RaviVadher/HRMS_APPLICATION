@@ -26,7 +26,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -161,18 +164,19 @@ public JobDto createJob(JobCreateDto dto) {
     public void refer(ReferRequestDto dto)
     {
         Job job = jobRepository.findById(dto.getJobId()).orElseThrow(()->new JobNotFoundException("Job not found"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
         String path = fileStorageService.store(
                 dto.getFile(),
                  dto.getJobId(),
-                dto.getJobId(),
+                user.getId(),
                 "Refer",
                 "CV"
         );
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+
 
         Refer refer = new Refer();
         refer.setJob(job);
@@ -184,8 +188,9 @@ public JobDto createJob(JobCreateDto dto) {
         refer.setUser(user);
         refer.setRefer_description(dto.getNote());
 
-        List<String> to = collectionto(job);
+        Set<String> to = collectionTo(job);
         String cvPath =  path.toString();
+
         emailService.sendMailWithAttachmentALl(to, "Refer Job",
                 EmailTemplate.referJob(job.getJobId(),job.getTitle(),user.getName(),dto.getFriendName(),dto.getFriendName()),cvPath);
         referRepository.save(refer);
@@ -194,20 +199,20 @@ public JobDto createJob(JobCreateDto dto) {
 
 
     //find all configured mail.
-    private List<String >collectionto (Job job)
+    private Set<String >collectionTo (Job job)
     {
-        List<String> list = new ArrayList<>();
+        Set<String> list = new HashSet<>();
         list.add(job.getEmail_hr());
 
-        List<String>  defaultHr = appConfigRepository.findAll()
-                .stream().map(AppConfig::getValue).toList();
+        Set<String>  defaultHr = appConfigRepository.findAll()
+                .stream().map(AppConfig::getValue).collect(Collectors.toSet());
 
         list.addAll(defaultHr);
 
-        List<String> reviewers = jobCvReviewerRepository.findByJob_JobId(job.getJobId())
+        Set<String> reviewers = jobCvReviewerRepository.findByJob_JobId(job.getJobId())
         .stream()
             .map( r -> r.getReviewer().getEmail())
-            .toList();
+            .collect(Collectors.toSet());
 
         list.addAll(reviewers);
         return list;

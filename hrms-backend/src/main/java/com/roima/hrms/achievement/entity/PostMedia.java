@@ -1,6 +1,6 @@
 package com.roima.hrms.achievement.entity;
 
-import com.roima.hrms.user.entity.User;
+import com.roima.hrms.achievement.enums.MediaType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

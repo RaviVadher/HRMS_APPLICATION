@@ -1,12 +1,11 @@
 package com.roima.hrms.achievement.service;
 
-import com.roima.hrms.achievement.dto.AchievementPostDTO;
-import com.roima.hrms.achievement.dto.CreatePostRequest;
-import com.roima.hrms.achievement.dto.PostMediaDTO;
+import com.roima.hrms.achievement.dto.*;
 import com.roima.hrms.achievement.entity.AchievementPost;
 import com.roima.hrms.achievement.entity.PostMedia;
-import com.roima.hrms.achievement.entity.PostType;
-import com.roima.hrms.achievement.entity.PostVisibility;
+import com.roima.hrms.achievement.enums.PostType;
+import com.roima.hrms.achievement.enums.MediaType;
+import com.roima.hrms.achievement.enums.PostVisibility;
 import com.roima.hrms.achievement.repository.AchievementPostRepository;
 import com.roima.hrms.achievement.repository.PostMediaRepository;
 import com.roima.hrms.common.filestorage.FileStorageService;
@@ -19,47 +18,42 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @Transactional
 public class AchievementPostService {
 
-    @Autowired
-    private AchievementPostRepository postRepository;
-
-    @Autowired
-    private PostMediaRepository mediaRepository;
-
-    @Autowired
-    private FileStorageService fileStorageService;
-
-    @Autowired
-    private LikeService likeService;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
+    private final AchievementPostRepository postRepository;
+    private final PostMediaRepository mediaRepository;
+    private final FileStorageService fileStorageService;
     private EmailService emailService;
+
+    public AchievementPostService(AchievementPostRepository postRepository,
+                                  PostMediaRepository mediaRepository,
+                                  FileStorageService fileStorageService,
+                                  EmailService emailService) {
+        this.postRepository = postRepository;
+        this.mediaRepository = mediaRepository;
+        this.fileStorageService = fileStorageService;
+        this.emailService = emailService;
+    }
 
     /**
      * Create new achievement post with optional media file
-     *
      * @param request CreatePostRequest containing post details and optional media file
      * @param currentUser User creating the post (authenticated user)
      * @return AchievementPostDTO with post details and media information
      * @throws IOException if file upload fails
      */
     public AchievementPostDTO createPost(CreatePostRequest request, User currentUser) throws IOException {
-
         log.info("Creating new achievement post for user: {}", currentUser.getName());
-
-        // Validate request
         validateCreatePostRequest(request);
 
         // Create AchievementPost entity
@@ -72,7 +66,6 @@ public class AchievementPostService {
         post.setAuthor(currentUser);
         post.setIsDeleted(false);
         post.setCreatedAt(LocalDateTime.now());
-
         // Save post first to get the ID
         AchievementPost savedPost = postRepository.save(post);
         log.info("Achievement post created with ID: {}", savedPost.getPostId());
@@ -89,14 +82,12 @@ public class AchievementPostService {
                 throw new IOException("Failed to upload media file: " + e.getMessage(), e);
             }
         }
-
         // Convert to DTO and return
         return mapToDTO(savedPost);
     }
 
     /**
      * Upload and process media file for a post
-     *
      * @param mediaFile MultipartFile to upload
      * @param post AchievementPost entity
      * @param user User uploading the file
@@ -106,11 +97,9 @@ public class AchievementPostService {
     private PostMedia uploadPostMedia(MultipartFile mediaFile, AchievementPost post, User user) throws IOException {
 
         log.info("Uploading media file: {} for post: {}", mediaFile.getOriginalFilename(), post.getPostId());
-
         // Use common FileStorageService to store file
         // Parameters: file, travelId (using postId), userId, docName, moduleName
         String filePath = fileStorageService.store(mediaFile, post.getPostId(), user.getId(), "achievement", "achievement");
-
         log.info("Media file uploaded successfully to: {}", filePath);
 
         // Create PostMedia entity
@@ -124,31 +113,28 @@ public class AchievementPostService {
         media.setUploadedAt(LocalDateTime.now());
         media.setIsDeleted(false);
         media.setPost(post);
-
         // Save to database
         PostMedia savedMedia = mediaRepository.save(media);
         log.info("PostMedia record saved with ID: {}", savedMedia.getMediaId());
-
         return savedMedia;
     }
 
     /**
      * Determine media type from MIME type
      */
-    private com.roima.hrms.achievement.entity.MediaType determineMediaType(String contentType) {
+    private MediaType determineMediaType(String contentType) {
         if (contentType != null) {
             if (contentType.startsWith("image/")) {
-                return com.roima.hrms.achievement.entity.MediaType.IMAGE;
+                return MediaType.IMAGE;
             } else if (contentType.startsWith("video/")) {
-                return com.roima.hrms.achievement.entity.MediaType.VIDEO;
+                return MediaType.VIDEO;
             }
         }
-        return com.roima.hrms.achievement.entity.MediaType.IMAGE; // default
+        return MediaType.IMAGE;
     }
 
     /**
      * Validate CreatePostRequest
-     *
      * @param request CreatePostRequest to validate
      * @throws IllegalArgumentException if validation fails
      */
@@ -157,35 +143,26 @@ public class AchievementPostService {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be empty");
         }
-
         if (request.getTitle().length() < 3 || request.getTitle().length() > 255) {
             throw new IllegalArgumentException("Title must be between 3 and 255 characters");
         }
-
         if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
             throw new IllegalArgumentException("Description cannot be empty");
         }
-
         if (request.getDescription().length() < 10 || request.getDescription().length() > 5000) {
             throw new IllegalArgumentException("Description must be between 10 and 5000 characters");
         }
-
         if (request.getTags() != null && request.getTags().length() > 500) {
             throw new IllegalArgumentException("Tags must not exceed 500 characters");
         }
-
         if (request.getVisibility() == null || request.getVisibility().trim().isEmpty()) {
             throw new IllegalArgumentException("Visibility must be specified");
         }
-
-        // Validate visibility enum
         try {
             PostVisibility.valueOf(request.getVisibility());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid visibility value. Must be one of: ALL_EMPLOYEES, DEPARTMENT_ONLY, PRIVATE");
         }
-
-        // Validate media file if provided - only image and video allowed
         if (request.getMediaFile() != null && !request.getMediaFile().isEmpty()) {
             validateMediaFile(request.getMediaFile());
         }
@@ -196,31 +173,25 @@ public class AchievementPostService {
      */
     private void validateMediaFile(MultipartFile mediaFile) throws IllegalArgumentException {
         String contentType = mediaFile.getContentType();
-
         if (contentType == null) {
             throw new IllegalArgumentException("Media file type cannot be determined");
         }
-
         boolean isImage = contentType.startsWith("image/");
         boolean isVideo = contentType.startsWith("video/");
-
         if (!isImage && !isVideo) {
             throw new IllegalArgumentException("Only image and video files are allowed. Got: " + contentType);
         }
-
         // Additional validation for specific types
         if (isImage) {
             if (!contentType.matches("image/(jpeg|png|gif|webp)")) {
                 throw new IllegalArgumentException("Image must be one of: JPEG, PNG, GIF, WebP");
             }
         }
-
         if (isVideo) {
             if (!contentType.matches("video/(mp4|mpeg|quicktime|x-msvideo|webm|x-matroska)")) {
                 throw new IllegalArgumentException("Video must be one of: MP4, MPEG, MOV, AVI, WebM, MKV");
             }
         }
-
         // Check file size (50MB max)
         if (mediaFile.getSize() > 52428800) {
             throw new IllegalArgumentException("Media file size exceeds 50MB limit");
@@ -229,12 +200,10 @@ public class AchievementPostService {
 
     /**
      * Map AchievementPost entity to DTO with media information
-     *
      * @param post AchievementPost entity
      * @return AchievementPostDTO
      */
     public AchievementPostDTO mapToDTO(AchievementPost post) {
-
         AchievementPostDTO dto = new AchievementPostDTO();
         dto.setPostId(post.getPostId());
         dto.setTitle(post.getTitle());
@@ -254,13 +223,9 @@ public class AchievementPostService {
         Long commentCount = post.getComments() != null ? (long) post.getComments().stream()
                 .filter(c -> !c.getIsDeleted())
                 .count() : 0L;
-
         dto.setLikeCount(likeCount);
         dto.setCommentCount(commentCount);
-        // Default: not known at service layer; UI/controller may override based on current user
         dto.setIsLikedByCurrentUser(false);
-
-        // Set recent likers (last 5)
         if (post.getLikes() != null && !post.getLikes().isEmpty()) {
             List<com.roima.hrms.achievement.dto.UserBasicDTO> recentLikers = post.getLikes().stream()
                     .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
@@ -300,25 +265,21 @@ public class AchievementPostService {
 
     /**
      * Map Comment entity to DTO
-     *
      * @param comment Comment entity
      * @return CommentDTO
      */
-    private com.roima.hrms.achievement.dto.CommentDTO mapCommentToDTO(com.roima.hrms.achievement.entity.Comment comment) {
-
-        com.roima.hrms.achievement.dto.CommentDTO dto = new com.roima.hrms.achievement.dto.CommentDTO();
+    private CommentDTO mapCommentToDTO(com.roima.hrms.achievement.entity.Comment comment) {
+        CommentDTO dto = new CommentDTO();
         dto.setCommentId(comment.getCommentId());
         dto.setText(comment.getText());
         dto.setAuthor(mapUserToDTO(comment.getAuthor()));
         dto.setCreatedAt(comment.getCreatedAt());
         dto.setUpdatedAt(comment.getUpdatedAt());
-
         return dto;
     }
 
     /**
      * Map PostMedia entity to DTO
-     *
      * @param media PostMedia entity
      * @return PostMediaDTO
      */
@@ -333,36 +294,29 @@ public class AchievementPostService {
         dto.setFileSize(media.getFileSize());
         dto.setMimeType(media.getMimeType());
         dto.setUploadedAt(media.getUploadedAt());
-
-        // Generate URLs (can be customized based on your backend URL)
         String baseUrl = "/api/achievements/" + media.getPost().getPostId() + "/media/" + media.getMediaId();
         dto.setDownloadUrl(baseUrl + "/download");
         dto.setPreviewUrl(baseUrl + "/preview");
-
         return dto;
     }
 
     /**
      * Map User to basic user DTO
-     *
      * @param user User entity
      * @return UserBasicDTO
      */
-    private com.roima.hrms.achievement.dto.UserBasicDTO mapUserToDTO(User user) {
-
-        com.roima.hrms.achievement.dto.UserBasicDTO dto = new com.roima.hrms.achievement.dto.UserBasicDTO();
+    private UserBasicDTO mapUserToDTO(User user) {
+        UserBasicDTO dto = new UserBasicDTO();
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
         dto.setDesignation(user.getDesignation());
         dto.setProfileImage(user.getProfile_image());
-
         return dto;
     }
 
     /**
      * Get post by ID
-     *
      * @param postId Post ID
      * @return AchievementPostDTO
      * @throws RuntimeException if post not found
@@ -370,20 +324,16 @@ public class AchievementPostService {
     public AchievementPostDTO getPostById(Long postId) {
 
         log.info("Fetching post with ID: {}", postId);
-
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
         if (post.getIsDeleted()) {
             throw new RuntimeException("Post has been deleted");
         }
-
         return mapToDTO(post);
     }
 
     /**
      * Get all active posts (paginated)
-     *
      * @param pageNumber Page number (0-indexed)
      * @param pageSize Number of posts per page
      * @return List of AchievementPostDTO
@@ -391,13 +341,10 @@ public class AchievementPostService {
     public List<AchievementPostDTO> getAllActivePosts(int pageNumber, int pageSize) {
 
         log.info("Fetching active posts - Page: {}, Size: {}", pageNumber, pageSize);
-
         List<AchievementPost> posts = postRepository.findAllActivePosts();
-
         // Simple pagination logic
         int start = pageNumber * pageSize;
         int end = Math.min(start + pageSize, posts.size());
-
         return posts.subList(start, end).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -405,36 +352,30 @@ public class AchievementPostService {
 
     /**
      * Delete post (soft delete)
-     *
      * @param postId Post ID
      * @param currentUser User deleting the post
      */
     public void deletePost(Long postId, User currentUser) {
 
         log.info("Deleting post with ID: {} by user: {}", postId, currentUser.getName());
-
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
         // Check if user is the author or has admin role (optional)
         if (!post.getAuthor().getId().equals(currentUser.getId())) {
             // Can implement role-based check here
             // For now, allow only author to delete
             throw new RuntimeException("You do not have permission to delete this post");
         }
-
         // Soft delete
         post.setIsDeleted(true);
         post.setDeletedAt(LocalDateTime.now());
         postRepository.save(post);
-
         log.info("Post with ID: {} has been deleted", postId);
     }
 
     /**
      * HR deletion of post for inappropriate content
      * Sends warning email to post author
-     *
      * @param postId Post ID to delete
      * @param hrUser HR user deleting the post
      * @param reason Reason for deletion
@@ -443,21 +384,12 @@ public class AchievementPostService {
     public void deletePostAsHR(Long postId, User hrUser, String reason) {
 
         log.info("HR user {} deleting post {} for reason: {}", hrUser.getName(), postId, reason);
-
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
-        // Get author's email
-        String authorEmail = post.getAuthor().getEmail();
-
-        // Soft delete
         post.setIsDeleted(true);
         post.setDeletedAt(LocalDateTime.now());
         postRepository.save(post);
-
         log.info("Post with ID: {} deleted by HR user: {}", postId, hrUser.getName());
-
-        // Send warning email to author
         sendPostDeletionWarningEmail(post.getAuthor(), hrUser, post, reason);
     }
 
@@ -480,7 +412,6 @@ public class AchievementPostService {
      * Build email body for post deletion warning
      */
     private String buildPostDeletionEmailBody(User author, User hrUser, AchievementPost post, String reason) {
-
         return "Dear " + author.getName() + ",\n\n" +
                 "Your achievement post titled \"" + post.getTitle() + "\" has been removed by our moderation team.\n\n" +
                 "Reason for deletion: " + reason + "\n\n" +
@@ -493,27 +424,22 @@ public class AchievementPostService {
 
     /**
      * Get total count of active posts
-     *
      * @return Total number of active posts
      */
     public long getActivePostsCount() {
-
         List<AchievementPost> allPosts = postRepository.findAllActivePosts();
         return allPosts.size();
     }
 
     /**
      * Get posts by author
-     *
      * @param user Author user
      * @return List of AchievementPostDTO
      */
     public List<AchievementPostDTO> getPostsByAuthor(User user) {
 
         log.info("Fetching posts for author: {}", user.getName());
-
         List<AchievementPost> posts = postRepository.findByAuthorAndIsDeletedFalse(user);
-
         return posts.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -521,7 +447,6 @@ public class AchievementPostService {
 
     /**
      * Update achievement post
-     *
      * @param postId Post ID to update
      * @param request UpdatePostRequest with new details
      * @param currentUser User updating the post (must be author)
@@ -529,9 +454,7 @@ public class AchievementPostService {
      * @throws RuntimeException if post not found or user lacks permission
      */
     public AchievementPostDTO updatePost(Long postId, com.roima.hrms.achievement.dto.UpdatePostRequest request, User currentUser) {
-
         log.info("Updating post with ID: {} by user: {}", postId, currentUser.getName());
-
         // Fetch the post
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
@@ -540,12 +463,10 @@ public class AchievementPostService {
         if (post.getIsDeleted()) {
             throw new RuntimeException("Cannot update a deleted post");
         }
-
         // Authorization: Only author can update the post
         if (!post.getAuthor().getId().equals(currentUser.getId())) {
             throw new RuntimeException("You do not have permission to update this post");
         }
-
         // Validate request
         validateUpdatePostRequest(request);
 
@@ -555,17 +476,14 @@ public class AchievementPostService {
         post.setTags(request.getTags());
         post.setVisibility(PostVisibility.valueOf(request.getVisibility()));
         post.setUpdatedAt(LocalDateTime.now());
-
         // Save updated post
         AchievementPost updatedPost = postRepository.save(post);
         log.info("Post with ID: {} has been updated successfully", postId);
-
         return mapToDTO(updatedPost);
     }
 
     /**
      * Validate UpdatePostRequest
-     *
      * @param request UpdatePostRequest to validate
      * @throws IllegalArgumentException if validation fails
      */
@@ -574,27 +492,21 @@ public class AchievementPostService {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Title cannot be empty");
         }
-
         if (request.getTitle().length() < 3 || request.getTitle().length() > 255) {
             throw new IllegalArgumentException("Title must be between 3 and 255 characters");
         }
-
         if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
             throw new IllegalArgumentException("Description cannot be empty");
         }
-
         if (request.getDescription().length() < 10 || request.getDescription().length() > 5000) {
             throw new IllegalArgumentException("Description must be between 10 and 5000 characters");
         }
-
         if (request.getTags() != null && request.getTags().length() > 500) {
             throw new IllegalArgumentException("Tags must not exceed 500 characters");
         }
-
         if (request.getVisibility() == null || request.getVisibility().trim().isEmpty()) {
             throw new IllegalArgumentException("Visibility must be specified");
         }
-
         // Validate visibility enum
         try {
             PostVisibility.valueOf(request.getVisibility());
@@ -603,108 +515,19 @@ public class AchievementPostService {
         }
     }
 
-    /**
-     * Search posts by title, description, or tags
-     *
-     * @param query Search query string
-     * @return List of AchievementPostDTO matching the search query
-     */
-    public List<AchievementPostDTO> searchPosts(String query) {
-
-        log.info("Searching posts with query: {}", query);
-
-        if (query == null || query.trim().isEmpty()) {
-            log.warn("Empty search query provided");
-            return new ArrayList<>();
-        }
-
-        String searchQuery = query.trim().toLowerCase();
-        List<AchievementPost> allActivePosts = postRepository.findAllActivePosts();
-
-        // Filter posts by matching title, description, or tags
-        List<AchievementPost> searchResults = allActivePosts.stream()
-                .filter(post ->
-                    post.getTitle().toLowerCase().contains(searchQuery) ||
-                    post.getDescription().toLowerCase().contains(searchQuery) ||
-                    (post.getTags() != null && post.getTags().toLowerCase().contains(searchQuery))
-                )
-                .collect(Collectors.toList());
-
-        log.info("Found {} posts matching query: {}", searchResults.size(), query);
-
-        return searchResults.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Search posts by tag
-     *
-     * @param tag Tag to search for
-     * @return List of AchievementPostDTO with the specified tag
-     */
-    public List<AchievementPostDTO> searchPostsByTag(String tag) {
-
-        log.info("Searching posts by tag: {}", tag);
-
-        if (tag == null || tag.trim().isEmpty()) {
-            log.warn("Empty tag provided");
-            return new ArrayList<>();
-        }
-
-        String searchTag = tag.trim();
-        List<AchievementPost> tagResults = postRepository.findByTagsContaining(searchTag);
-
-        log.info("Found {} posts with tag: {}", tagResults.size(), tag);
-
-        return tagResults.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Search posts by author name
-     *
-     * @param authorName Name of the author to search for
-     * @return List of AchievementPostDTO by the author
-     */
-    public List<AchievementPostDTO> searchPostsByAuthor(String authorName) {
-
-        log.info("Searching posts by author: {}", authorName);
-
-        if (authorName == null || authorName.trim().isEmpty()) {
-            log.warn("Empty author name provided");
-            return new ArrayList<>();
-        }
-
-        String searchName = authorName.trim().toLowerCase();
-        List<AchievementPost> allActivePosts = postRepository.findAllActivePosts();
-
-        // Filter posts by author name (case-insensitive)
-        List<AchievementPost> authorResults = allActivePosts.stream()
-                .filter(post -> post.getAuthor().getName().toLowerCase().contains(searchName))
-                .collect(Collectors.toList());
-
-        log.info("Found {} posts by author: {}", authorResults.size(), authorName);
-
-        return authorResults.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
-    }
 
     /**
      * Advanced search supporting query (title/description/tags), tag, author name,
      * and optional creation date range (inclusive).
      * Dates should be provided as LocalDate (date-only) and are compared against post.createdAt.
      */
-    public List<AchievementPostDTO> searchPostsAdvanced(String query, String tag, String author, java.time.LocalDate startDate, java.time.LocalDate endDate) {
+    public List<AchievementPostDTO> searchPostsAdvanced(String query, String tag, String author, LocalDate startDate,LocalDate endDate) {
 
         log.info("Advanced search posts - query: {}, tag: {}, author: {}, startDate: {}, endDate: {}",
                 query, tag, author, startDate, endDate);
 
         List<AchievementPost> posts = postRepository.findAllActivePosts();
-
-        java.util.stream.Stream<AchievementPost> stream = posts.stream();
+        Stream<AchievementPost> stream = posts.stream();
 
         if (query != null && !query.trim().isEmpty()) {
             String q = query.trim().toLowerCase();
@@ -712,37 +535,29 @@ public class AchievementPostService {
                     || p.getDescription().toLowerCase().contains(q)
                     || (p.getTags() != null && p.getTags().toLowerCase().contains(q)));
         }
-
         if (tag != null && !tag.trim().isEmpty()) {
             String t = tag.trim().toLowerCase();
             stream = stream.filter(p -> p.getTags() != null && p.getTags().toLowerCase().contains(t));
         }
-
         if (author != null && !author.trim().isEmpty()) {
             String a = author.trim().toLowerCase();
             stream = stream.filter(p -> p.getAuthor() != null && p.getAuthor().getName().toLowerCase().contains(a));
         }
-
         if (startDate != null) {
             java.time.LocalDateTime startDateTime = startDate.atStartOfDay();
             stream = stream.filter(p -> p.getCreatedAt() != null && !p.getCreatedAt().isBefore(startDateTime));
         }
-
         if (endDate != null) {
             java.time.LocalDateTime endDateTime = endDate.atTime(23,59,59, 999_999_999);
             stream = stream.filter(p -> p.getCreatedAt() != null && !p.getCreatedAt().isAfter(endDateTime));
         }
-
         List<AchievementPost> results = stream.collect(java.util.stream.Collectors.toList());
-
         log.info("Advanced search found {} posts", results.size());
-
         return results.stream().map(this::mapToDTO).collect(java.util.stream.Collectors.toList());
     }
 
     /**
      * Download media file
-     *
      * @param postId Post ID
      * @param mediaId Media ID
      * @return ResponseEntity with file content
@@ -757,7 +572,6 @@ public class AchievementPostService {
         if (post.getIsDeleted()) {
             throw new RuntimeException("Post has been deleted");
         }
-
         // Find media
         PostMedia media = mediaRepository.findById(mediaId)
                 .orElseThrow(() -> new RuntimeException("Media not found with ID: " + mediaId));
@@ -787,22 +601,18 @@ public class AchievementPostService {
 
     /**
      * Preview media file
-     *
      * @param postId Post ID
      * @param mediaId Media ID
      * @return ResponseEntity with file content for preview
      */
     public org.springframework.http.ResponseEntity<?> previewMedia(Long postId, Long mediaId) {
         log.info("Previewing media {} for post {}", mediaId, postId);
-
         // Verify post exists and is not deleted
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-
         if (post.getIsDeleted()) {
             throw new RuntimeException("Post has been deleted");
         }
-
         // Find media
         PostMedia media = mediaRepository.findById(mediaId)
                 .orElseThrow(() -> new RuntimeException("Media not found with ID: " + mediaId));
@@ -810,11 +620,9 @@ public class AchievementPostService {
         if (media.getIsDeleted()) {
             throw new RuntimeException("Media has been deleted");
         }
-
         if (!media.getPost().getPostId().equals(postId)) {
             throw new RuntimeException("Media does not belong to this post");
         }
-
         try {
             org.springframework.core.io.Resource resource = fileStorageService.load(media.getFilePath());
             String contentType = media.getMimeType() != null ? media.getMimeType() : "application/octet-stream";
@@ -832,20 +640,17 @@ public class AchievementPostService {
 
     /**
      * Get all media files for a post
-     *
      * @param postId Post ID
      * @return List of PostMediaDTO
      */
     public List<PostMediaDTO> getPostMedia(Long postId) {
         log.info("Getting media for post {}", postId);
-
         AchievementPost post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
         if (post.getIsDeleted()) {
             throw new RuntimeException("Post has been deleted");
         }
-
         if (post.getMedia() == null || post.getMedia().isEmpty()) {
             return new ArrayList<>();
         }

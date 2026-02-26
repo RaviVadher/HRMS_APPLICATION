@@ -1,8 +1,8 @@
 package com.roima.hrms.achievement.scheduler;
 
 import com.roima.hrms.achievement.entity.AchievementPost;
-import com.roima.hrms.achievement.entity.PostType;
-import com.roima.hrms.achievement.entity.PostVisibility;
+import com.roima.hrms.achievement.enums.PostType;
+import com.roima.hrms.achievement.enums.PostVisibility;
 import com.roima.hrms.achievement.repository.AchievementPostRepository;
 import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -37,7 +36,6 @@ public class AchievementPostScheduler {
 
         LocalDate today = LocalDate.now();
         List<User> birthdayEmployees = userRepository.findByBirthdayToday(today);
-        User system= userRepository.findById(10013L).orElseThrow(()->new RuntimeException("User not found"));
         for (User employee : birthdayEmployees) {
             // Check if birthday post already exists for today
             if (!achievementPostRepository.existsByAuthorAndPostTypeAndCreatedAtDate(
@@ -47,12 +45,11 @@ public class AchievementPostScheduler {
                 birthdayPost.setTitle("Birthday Celebration");
                 birthdayPost.setDescription("Today is " + employee.getName() + "'s birthday!");
                 birthdayPost.setPostType(PostType.BIRTHDAY);
-                birthdayPost.setAuthor(system);
+                birthdayPost.setAuthor(employee);
                 birthdayPost.setIsSystemGenerated(true);
                 birthdayPost.setVisibility(PostVisibility.ALL_EMPLOYEES);
                 birthdayPost.setIsDeleted(false);
                 birthdayPost.setTags("birthday,celebration");
-
                 achievementPostRepository.save(birthdayPost);
                 log.info("Birthday post created for employee: {}", employee.getName());
             }
@@ -69,7 +66,6 @@ public class AchievementPostScheduler {
 
         LocalDate today = LocalDate.now();
         List<User> anniversaryEmployees = userRepository.findByAnniversaryToday(today);
-
         for (User employee : anniversaryEmployees) {
             // Check if anniversary post already exists for today
             if (!achievementPostRepository.existsByAuthorAndPostTypeAndCreatedAtDate(
@@ -82,7 +78,7 @@ public class AchievementPostScheduler {
                 anniversaryPost.setDescription(employee.getName() + " completes " + yearsCompleted +
                         " year" + (yearsCompleted > 1 ? "s" : "") + " at the organization! ");
                 anniversaryPost.setPostType(PostType.WORK_ANNIVERSARY);
-                anniversaryPost.setAuthor(employee); // System user or special system account
+                anniversaryPost.setAuthor(employee);
                 anniversaryPost.setIsSystemGenerated(true);
                 anniversaryPost.setVisibility(PostVisibility.ALL_EMPLOYEES);
                 anniversaryPost.setIsDeleted(false);

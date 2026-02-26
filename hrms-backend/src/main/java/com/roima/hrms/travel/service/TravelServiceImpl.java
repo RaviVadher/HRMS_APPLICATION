@@ -74,7 +74,7 @@ public class TravelServiceImpl implements TravelService {
     @Override
     public List<TravelResponseDto> findAllTravels()
     {
-        return travelRepository.findAll()
+        return travelRepository.findAllOrderByCreatedDateAsc()
                 .stream()
                 .map(travelMapper::toDto)
                 .toList();

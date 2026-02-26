@@ -1,14 +1,11 @@
 package com.roima.hrms.common.calendar;
-
 import com.roima.hrms.gamescheduling.entity.GameSlot;
 import com.roima.hrms.user.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class CalendarInviteService {

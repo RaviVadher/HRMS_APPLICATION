@@ -18,7 +18,7 @@ public class Scheduler {
     private final SlotService slotService;
     private final BookingService bookingService;
 
-    @Scheduled(cron = "0  * * * * * ")
+    @Scheduled(cron = "0 0 0 * * * ")
     public void generateSlot() {
 
         slotService.generateSlotForGames();

@@ -1,4 +1,4 @@
-package com.roima.hrms.achievement.entity;
+package com.roima.hrms.achievement.enums;
 
 public enum MediaType {
     IMAGE("image"),

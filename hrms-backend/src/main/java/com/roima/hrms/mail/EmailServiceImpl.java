@@ -10,7 +10,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -61,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendMailWithAttachmentALl(List<String> to, String subject, String body, String filePath) {
+    public void sendMailWithAttachmentALl(Set<String> to, String subject, String body, String filePath) {
 
         try{
             MimeMessage message = mailSender.createMimeMessage();
@@ -72,12 +74,16 @@ public class EmailServiceImpl implements EmailService {
             helper.setText(body);
 
             FileSystemResource file = new FileSystemResource(new File(filePath));
+            if(!file.exists() || !file.isReadable())
+            {
+                throw new FileNotFoundException("Jd File not found");
+            }
             helper.addAttachment(file.getFilename(), file);
 
             mailSender.send(message);
         }
         catch (Exception e){
-            throw new MailNotSendException(e.getMessage());
+            throw new MailNotSendException("Failed to send mail with attachment: " + e);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.roima.hrms.achievement.repository;
 
 import com.roima.hrms.achievement.entity.PostMedia;
-import com.roima.hrms.achievement.entity.MediaType;
+import com.roima.hrms.achievement.enums.MediaType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

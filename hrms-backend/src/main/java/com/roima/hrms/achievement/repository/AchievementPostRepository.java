@@ -1,7 +1,7 @@
 package com.roima.hrms.achievement.repository;
 
 import com.roima.hrms.achievement.entity.AchievementPost;
-import com.roima.hrms.achievement.entity.PostType;
+import com.roima.hrms.achievement.enums.PostType;
 import com.roima.hrms.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -37,11 +37,6 @@ public interface AchievementPostRepository extends JpaRepository<AchievementPost
             @Param("postType") PostType postType,
             @Param("date") LocalDate date);
 
-    /**
-     * Find posts by PostType
-     */
-    @Query("SELECT p FROM AchievementPost p WHERE p.postType = :postType AND p.isDeleted = false ORDER BY p.createdAt DESC")
-    List<AchievementPost> findByPostType(@Param("postType") PostType postType);
 
     /**
      * Find posts by tag (with search)

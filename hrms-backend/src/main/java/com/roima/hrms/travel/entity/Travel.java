@@ -55,7 +55,7 @@ public class Travel {
     private List<TravelAssign> assignList = new ArrayList<>();
 
     public boolean isEndDateAfterStartDate() {
-        return end_date!=null && start_date!=null && end_date.isAfter(start_date);
+        return end_date!=null && start_date!=null && (end_date.isAfter(start_date) || end_date.isEqual(start_date));
     }
 
 

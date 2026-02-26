@@ -1,6 +1,6 @@
 package com.roima.hrms.achievement.dto;
 
-import com.roima.hrms.achievement.entity.MediaType;
+import com.roima.hrms.achievement.enums.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

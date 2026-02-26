@@ -2,6 +2,8 @@ package com.roima.hrms.achievement.controller;
 
 import com.roima.hrms.achievement.dto.*;
 import com.roima.hrms.achievement.service.AchievementPostService;
+import com.roima.hrms.achievement.service.CommentService;
+import com.roima.hrms.achievement.service.LikeService;
 import com.roima.hrms.auth.model.UserPrincipal;
 import com.roima.hrms.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +26,16 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AchievementPostController {
 
-    @Autowired
-    private AchievementPostService postService;
 
-    @Autowired
-    private com.roima.hrms.achievement.service.LikeService likeService;
+    private final AchievementPostService postService;
+    private final LikeService likeService;
+    private final CommentService commentService;
 
-    @Autowired
-    private com.roima.hrms.achievement.service.CommentService commentService;
+    public AchievementPostController(AchievementPostService postService, LikeService likeService, CommentService commentService) {
+        this.commentService = commentService;
+        this.postService = postService;
+        this.likeService = likeService;
+    }
 
     /**
      * Create new achievement post with optional media file
@@ -118,7 +122,6 @@ public class AchievementPostController {
                     }
                 }
             } catch (Exception ignore) {
-                // ignore if no authentication available
             }
 
             long totalElements = postService.getActivePostsCount();
@@ -181,7 +184,6 @@ public class AchievementPostController {
                     }
                 }
             } catch (Exception ignore) {
-                // ignore when unauthenticated
             }
 
             log.info("Post {} retrieved successfully", postId);
@@ -205,7 +207,6 @@ public class AchievementPostController {
 
     /**
      * Update achievement post
-     *
      * @param postId Post ID to update
      * @param request UpdatePostRequest with new details
      * @return ApiResponse with updated post
@@ -220,14 +221,12 @@ public class AchievementPostController {
         log.info("PUT /api/achievements/{} - Updating post by user: {}", postId, currentUser.getName());
 
         try {
-            // Validate user is authenticated
             if (currentUser == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
 
-            // Validate postId
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post ID", null,
@@ -248,7 +247,6 @@ public class AchievementPostController {
                             java.util.Collections.singletonList(e.getMessage()), 400));
 
         } catch (RuntimeException e) {
-            // Check if it's a permission error or not found
             if (e.getMessage().contains("permission")) {
                 log.warn("Permission denied for user {} to update post {}", currentUser.getName(), postId);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -271,7 +269,6 @@ public class AchievementPostController {
 
     /**
      * Delete post (soft delete)
-     *
      * @param postId Post ID to delete
      * @return ApiResponse with success message
      */
@@ -284,14 +281,11 @@ public class AchievementPostController {
         log.info("DELETE /api/achievements/{} - Deleting post by user: {}", postId, currentUser.getName());
 
         try {
-            // Validate user is authenticated
             if (currentUser == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
-
-            // Validate postId
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post ID", null,
@@ -300,7 +294,6 @@ public class AchievementPostController {
 
             // Delete post
             postService.deletePost(postId, currentUser);
-
             log.info("Post {} deleted successfully", postId);
 
             return ResponseEntity.ok(
@@ -349,9 +342,7 @@ public class AchievementPostController {
             }
 
             List<AchievementPostDTO> userPosts = postService.getPostsByAuthor(currentUser);
-
             log.info("Retrieved {} posts for user {}", userPosts.size(), currentUser.getName());
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "User posts retrieved successfully", userPosts));
 
@@ -365,7 +356,6 @@ public class AchievementPostController {
 
     /**
      * Get total count of active posts
-     *
      * @return ApiResponse with count
      */
     @GetMapping("/count")
@@ -375,7 +365,6 @@ public class AchievementPostController {
 
         try {
             long count = postService.getActivePostsCount();
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "Posts count retrieved successfully", count));
 
@@ -389,7 +378,6 @@ public class AchievementPostController {
 
     /**
      * Search posts by title, description, or tags
-     *
      * @param query Search query string (searches in title, description, and tags)
      * @return ApiResponse with matching posts
      */
@@ -402,7 +390,6 @@ public class AchievementPostController {
             @RequestParam(name = "endDate", required = false) String endDateStr) {
 
         log.info("GET /api/achievements/search - Searching posts. Query: {}, Tag: {}, Author: {}, startDate: {}, endDate: {}", query, tag, author, startDateStr, endDateStr);
-
         try {
             java.time.LocalDate startDate = null;
             java.time.LocalDate endDate = null;
@@ -422,9 +409,7 @@ public class AchievementPostController {
             }
 
             List<AchievementPostDTO> results = postService.searchPostsAdvanced(query, tag, author, startDate, endDate);
-
             log.info("Search completed. Found {} results", results.size());
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "Search results retrieved", results));
 
@@ -440,7 +425,6 @@ public class AchievementPostController {
 
     /**
      * Like a post
-     *
      * @param postId Post ID to like
      * @return ApiResponse with like details
      */
@@ -457,7 +441,6 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
-
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post ID", null,
@@ -466,7 +449,6 @@ public class AchievementPostController {
 
             LikeDTO result = likeService.likePost(postId, currentUser);
             log.info("Post {} liked by user {}", postId, currentUser.getId());
-
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse<>(true, "Post liked successfully", result));
 
@@ -496,7 +478,6 @@ public class AchievementPostController {
 
     /**
      * Unlike a post
-     *
      * @param postId Post ID to unlike
      * @return ApiResponse with success message
      */
@@ -513,7 +494,6 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
-
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post ID", null,
@@ -522,7 +502,6 @@ public class AchievementPostController {
 
             likeService.unlikePost(postId, currentUser);
             log.info("Post {} unliked by user {}", postId, currentUser.getId());
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "Post unliked successfully", null));
 
@@ -537,7 +516,6 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, e.getMessage(), null,
                                 java.util.Collections.singletonList(e.getMessage()), 400));
             }
-
         } catch (Exception e) {
             log.error("Error unliking post {}: {}", postId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -548,7 +526,6 @@ public class AchievementPostController {
 
     /**
      * Get all users who liked a post
-     *
      * @param postId Post ID
      * @return ApiResponse with list of users who liked
      */
@@ -556,7 +533,6 @@ public class AchievementPostController {
     public ResponseEntity<ApiResponse<List<UserBasicDTO>>> getPostLikers(@PathVariable Long postId) {
 
         log.info("GET /api/achievements/{}/likers - Fetching likers", postId);
-
         try {
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -585,10 +561,8 @@ public class AchievementPostController {
     }
 
     // ==================== COMMENT ENDPOINTS ====================
-
     /**
      * Create a comment on a post
-     *
      * @param postId Post ID to comment on
      * @param request CreateCommentRequest with comment text
      * @return ApiResponse with created comment
@@ -643,25 +617,20 @@ public class AchievementPostController {
 
     /**
      * Get all comments for a post
-     *
      * @param postId Post ID
      * @return ApiResponse with list of comments
      */
     @GetMapping("/{postId:\\d+}/comments")
     public ResponseEntity<ApiResponse<List<CommentDTO>>> getPostComments(@PathVariable Long postId) {
-
         log.info("GET /api/achievements/{}/comments - Fetching comments", postId);
-
         try {
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post ID", null,
                                 java.util.Collections.singletonList("Post ID must be positive"), 400));
             }
-
             List<CommentDTO> comments = commentService.getPostComments(postId);
             log.info("Retrieved {} comments for post {}", comments.size(), postId);
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true,"", comments));
 
@@ -681,7 +650,6 @@ public class AchievementPostController {
 
     /**
      * Update a comment
-     *
      * @param postId Post ID (for validation)
      * @param commentId Comment ID to update
      * @param request UpdateCommentRequest with new text
@@ -703,7 +671,6 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
-
             if (commentId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid comment ID", null,
@@ -712,7 +679,6 @@ public class AchievementPostController {
 
             CommentDTO result = commentService.updateComment(commentId, request, currentUser);
             log.info("Comment {} updated successfully", commentId);
-
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "Comment updated successfully", result));
 
@@ -748,7 +714,6 @@ public class AchievementPostController {
 
     /**
      * Delete a comment
-     *
      * @param postId Post ID (for validation)
      * @param commentId Comment ID to delete
      * @return ApiResponse with success message
@@ -768,7 +733,6 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "User not authenticated", null,
                                 java.util.Collections.singletonList("Authentication required"), 401));
             }
-
             if (commentId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid comment ID", null,
@@ -833,11 +797,8 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "Permission denied", null,
                                 java.util.Collections.singletonList("Only HR can perform this action"), 403));
             }
-
             postService.deletePostAsHR(postId, currentUser, reason);
-
             return ResponseEntity.ok(new ApiResponse<>(true, "Post removed by HR", null));
-
         } catch (RuntimeException e) {
             log.warn("Moderation failed: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -859,11 +820,9 @@ public class AchievementPostController {
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @RequestParam(name = "reason", required = false) String reason) {
-
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User currentUser = userPrincipal.getUser();
         log.info("DELETE /api/achievements/{}/comments/{}/moderate - HR delete comment by {}", postId, commentId, currentUser.getName());
-
         try {
             if (currentUser == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -877,9 +836,7 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "Permission denied", null,
                                 java.util.Collections.singletonList("Only HR can perform this action"), 403));
             }
-
             commentService.deleteCommentAsHR(commentId, currentUser, reason);
-
             return ResponseEntity.ok(new ApiResponse<>(true, "Comment removed by HR", null));
 
         } catch (RuntimeException e) {
@@ -895,11 +852,8 @@ public class AchievementPostController {
         }
     }
 
-
-
     /**
      * Download media file for a post
-     *
      * @param postId Post ID
      * @param mediaId Media ID
      * @return ResponseEntity with file content
@@ -908,7 +862,6 @@ public class AchievementPostController {
     public ResponseEntity<?> downloadMedia(
             @PathVariable Long postId,
             @PathVariable Long mediaId) {
-
         log.info("GET /api/achievements/{}/media/{}/download - Downloading media", postId, mediaId);
 
         try {
@@ -917,9 +870,7 @@ public class AchievementPostController {
                         .body(new ApiResponse<>(false, "Invalid post or media ID", null,
                                 java.util.Collections.singletonList("IDs must be positive"), 400));
             }
-
             return postService.downloadMedia(postId, mediaId);
-
         } catch (RuntimeException e) {
             log.warn("Media not found: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -936,7 +887,6 @@ public class AchievementPostController {
 
     /**
      * Preview media file for a post (typically for images)
-     *
      * @param postId Post ID
      * @param mediaId Media ID
      * @return ResponseEntity with file content for preview
@@ -947,14 +897,12 @@ public class AchievementPostController {
             @PathVariable Long mediaId) {
 
         log.info("GET /api/achievements/{}/media/{}/preview - Previewing media", postId, mediaId);
-
         try {
             if (postId <= 0 || mediaId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse<>(false, "Invalid post or media ID", null,
                                 java.util.Collections.singletonList("IDs must be positive"), 400));
             }
-
             return postService.previewMedia(postId, mediaId);
 
         } catch (RuntimeException e) {
@@ -973,15 +921,12 @@ public class AchievementPostController {
 
     /**
      * Get all media files for a post
-     *
      * @param postId Post ID
      * @return ApiResponse with list of media files
      */
     @GetMapping("/{postId:\\d+}/media")
     public ResponseEntity<ApiResponse<List<PostMediaDTO>>> getPostMedia(@PathVariable Long postId) {
-
         log.info("GET /api/achievements/{}/media - Fetching media", postId);
-
         try {
             if (postId <= 0) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -1007,6 +952,36 @@ public class AchievementPostController {
                     .body(new ApiResponse<>(false, "Error retrieving media", null,
                             java.util.Collections.singletonList(e.getMessage()), 500));
         }
+    }
+
+    @PostMapping("/comment/{commentId}/like")
+    public ResponseEntity<?> likeComment(
+            @PathVariable Long commentId
+
+    ) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userPrincipal.getUser();
+        commentService.likeComment(commentId, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    /* UNLIKE COMMENT */
+    @DeleteMapping("/comment/{commentId}/like")
+    public ResponseEntity<?> unlikeComment(
+            @PathVariable Long commentId
+    ) {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userPrincipal.getUser();
+        commentService.unlikeComment(commentId, user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    /* GET LIKE COUNT */
+    @GetMapping("/comment/{commentId}/like/count")
+    public ResponseEntity<Long> getLikes(@PathVariable Long commentId) {
+        return ResponseEntity.ok(
+                commentService.getTotalLikes(commentId)
+        );
     }
 }
 

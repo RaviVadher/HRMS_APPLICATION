@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MailNotSendException.class)
     public ResponseEntity<ApiError>mailNotSend(MailNotSendException ex) {
-        return  buildError(ex.getMessage(),"Mail not send", HttpStatus.NOT_ACCEPTABLE);
+        return  buildError(ex.getMessage(),"Mail Not Sent", HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(UserPrincipalNotFoundException.class)

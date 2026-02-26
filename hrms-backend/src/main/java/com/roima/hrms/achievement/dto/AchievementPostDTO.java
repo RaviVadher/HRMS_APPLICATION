@@ -1,7 +1,7 @@
 package com.roima.hrms.achievement.dto;
 
-import com.roima.hrms.achievement.entity.PostType;
-import com.roima.hrms.achievement.entity.PostVisibility;
+import com.roima.hrms.achievement.enums.PostType;
+import com.roima.hrms.achievement.enums.PostVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

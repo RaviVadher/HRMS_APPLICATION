@@ -166,6 +166,7 @@ public class BookingServiceImpl implements BookingService {
          limit = limit.truncatedTo(ChronoUnit.MINUTES);
         log.info(limit+"time comparing");
 
+
         List<GameSlot> slots =gameSlotRepository.findSlotStartingIsNow(limit);
 
         for(GameSlot slot : slots)
@@ -223,7 +224,7 @@ public class BookingServiceImpl implements BookingService {
     {
         for(Booking b : waitingList)
         {
-            b.setStatus(BookingStatus.Cancelled);
+            b.setStatus(BookingStatus.NotAssigned);
             bookingRepository.save(b);
             notificationService.crateNotification(b.getBookedBy().getId(),"Game slot not assigned to you", NotificationType.SlotBooking, b.getId(), false);
 
@@ -238,7 +239,6 @@ public class BookingServiceImpl implements BookingService {
     {
         LocalTime time = now();
         time = time.truncatedTo(ChronoUnit.MINUTES);
-
         List<GameSlot> slots =gameSlotRepository.findFinishedSlots(time);
 
         for (GameSlot slot : slots)

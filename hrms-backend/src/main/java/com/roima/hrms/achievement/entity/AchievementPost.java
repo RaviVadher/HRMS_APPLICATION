@@ -1,5 +1,7 @@
 package com.roima.hrms.achievement.entity;
 
+import com.roima.hrms.achievement.enums.PostType;
+import com.roima.hrms.achievement.enums.PostVisibility;
 import com.roima.hrms.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

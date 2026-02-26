@@ -1,6 +1,7 @@
 package com.roima.hrms.gamescheduling.service;
 
 import com.roima.hrms.auth.model.UserPrincipal;
+import com.roima.hrms.common.exception.GeneralException;
 import com.roima.hrms.gamescheduling.dto.GameConfigRequestDto;
 import com.roima.hrms.gamescheduling.dto.GameConfigResponseDto;
 import com.roima.hrms.gamescheduling.dto.GameInterestUserDto;
@@ -10,6 +11,7 @@ import com.roima.hrms.gamescheduling.entity.GameConfig;
 import com.roima.hrms.gamescheduling.entity.GameInterest;
 import com.roima.hrms.gamescheduling.entity.PlayerStats;
 import com.roima.hrms.gamescheduling.exception.ConfigExistException;
+import com.roima.hrms.gamescheduling.exception.NotAllowedException;
 import com.roima.hrms.gamescheduling.exception.NotFoundException;
 import com.roima.hrms.gamescheduling.mapper.GameConfigMapper;
 import com.roima.hrms.gamescheduling.mapper.GameMapper;
@@ -147,7 +149,7 @@ public class GameServiceImpl implements GameService {
 
         if(gameInterestRepository.existsByUserIdAndGameId(user.getId(),gameId))
         {
-            return ResponseEntity.ok().body("You have already submitted Game interested successfully");
+            throw new NotAllowedException("You have already interested for this game");
         }
 
         GameInterest gameInterest = new GameInterest();
