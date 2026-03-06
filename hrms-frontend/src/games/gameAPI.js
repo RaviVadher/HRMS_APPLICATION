@@ -83,6 +83,21 @@ export const addInterest = async(gameId)=>
         return res.data;
 }
 
+//remove interest
+export const removeInterest = async (gameId) =>{
+
+    const res  = await api.delete(`/games/${gameId}/gameInterest`);
+    return res.data;
+}
+
+//my interest
+export const fetchMyInterest = async ()=>{
+
+    const res = await api.get(`/games/gameInterest/my`);
+    return res.data;
+
+}
+
 //dashboard stats
 export const fetchDashboard = async () => {
     const res = await api.get("/slot/dashboard/upcoming");

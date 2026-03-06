@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchGame, createGame, addInterest, fetchDashboard } from "../gameAPI";
+import { fetchGame, createGame, addInterest, fetchDashboard, fetchMyInterest, removeInterest } from "../gameAPI";
 import toast from "react-hot-toast";
 import DashboardLayout from "../../layout/DashboardLayout";
 import { useAuth } from "../../context/AuthContext";
@@ -14,12 +14,14 @@ export default function GameList() {
     const { user, loading } = useAuth();
     const [showForm, setShowForm] = useState(false);
     const [gameName, setGameName] = useState("");
+    const [myInterest, setMyInterest] = useState([]);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         loadGame();
         loadDashboard();
+        loadMyInterest();
         const id = setInterval(loadDashboard, 30000);
         return () => clearInterval(id);
 
@@ -44,6 +46,15 @@ export default function GameList() {
         } catch { }
     };
 
+    const loadMyInterest = async () => {
+
+        const data = await fetchMyInterest();
+        const ids = data.map(i => i.gameId);
+        setMyInterest(ids);
+    }
+
+
+
     const handleCreate = async () => {
         if (!gameName.trim())
             return toast.error("Enter game name");
@@ -60,14 +71,30 @@ export default function GameList() {
     };
 
     const handleInterest = async (gameId) => {
-            try{
+        try {
             await addInterest(gameId);
             toast.success("Interest added");
-            }catch(e){
-                console.log(e)
-            };
-    
+            loadMyInterest();
+        } catch (e) {
+            console.log(e)
+        };
+
     };
+
+    const handleRemoveInterest = async (gameId) => {
+        try {
+            if(confirm("are you confirm to remove interest"))
+            {
+            const data = await removeInterest(gameId);
+            toast.success("Interest removed");
+            loadMyInterest();
+            }
+        }
+        catch (e) {
+            console.log(e)
+        };
+
+    }
 
     const slotsByGame = dashboard.reduce((acc, slot) => {
         if (!acc[slot.game]) acc[slot.game] = [];
@@ -127,18 +154,30 @@ export default function GameList() {
                                 {g.gameName}
                             </h2>
                             <div className="flex flex-col gap-3">
-                                <button
-                                    className="bg-blue-400 text-white py-2 rounded hover:bg-blue-400"
-                                    onClick={() => handleInterest(g.gameId)}
-                                >
-                                    Add Interest
-                                </button>
-                                <button
+                                {myInterest.includes(g.gameId) ? (
+                                    <>
+                                    <button
+                                        className="bg-red-500 text-white py-2 rounded hover:bg-red-400"
+                                        onClick={() => handleRemoveInterest(g.gameId)}>
+                                        Remove Interest
+                                    </button>
+                                    <button
                                     className="bg-blue-500 text-white py-2 rounded hover:bg-blue-400"
                                     onClick={() => navigate(`/games/${g.gameId}/slot`)}
                                 >
                                     Book Game
                                 </button>
+                                </>
+
+                                ) : (
+                                    <button
+                                        className="bg-blue-500 text-white py-2 rounded hover:bg-blue-400"
+                                        onClick={() => handleInterest(g.gameId)}>
+                                        Add Interest
+                                    </button>
+                                )}
+
+                                
                                 <button
                                     className="bg-blue-500 text-white py-2 rounded hover:bg-blue-400"
                                     onClick={() => navigate(`/game/${g.gameId}/bookingHistory/${user.id}`)} >
@@ -174,5 +213,5 @@ export default function GameList() {
                 </div>
             </div>
         </DashboardLayout>
-    );  
+    );
 }

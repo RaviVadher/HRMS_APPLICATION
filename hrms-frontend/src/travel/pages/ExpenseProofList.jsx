@@ -4,6 +4,7 @@ import { getExpeseProofs, getProofUrl } from "../travelAPI";
 import { Button } from "@mui/material";
 import AddProof from "../componants/AddProof";
 import { useAuth } from "../../context/AuthContext";
+import DashboardLayout from "../../layout/DashboardLayout";
 const ExpenseProofList = () => {
   const navigate = useNavigate();
   const [proofs, setProofs] = useState([]);
@@ -33,6 +34,7 @@ const ExpenseProofList = () => {
   if(loading) return;
 
   return (
+    <DashboardLayout>
     <div className="bg-white shadow rounded-lg">
       <table className="w-full">
         <thead className="bg-gray-100">
@@ -70,6 +72,7 @@ const ExpenseProofList = () => {
          <AddProof open={openAdd} close={() => setOpenAdd(false)} expenseId ={id} />
       
     </div>
+    </DashboardLayout>
   );
 };
 
