@@ -13,7 +13,6 @@ public class InterestUserMapper {
         dto.setInterestId(interest.getId());
         dto.setName(interest.getUser().getName());
         dto.setGameName(interest.getGame().getGameName());
-
         return dto;
     }
 }

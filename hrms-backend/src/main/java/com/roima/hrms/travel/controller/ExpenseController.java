@@ -72,5 +72,10 @@ public class ExpenseController {
     }
 
 
+    @PostMapping(value = "/expenseProof/{expenseId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> addExpenseProof(@PathVariable Long expenseId,@RequestParam("file") MultipartFile file){
+        return expenseService.addExpenseProof(expenseId,file);
+
+    }
 
 }

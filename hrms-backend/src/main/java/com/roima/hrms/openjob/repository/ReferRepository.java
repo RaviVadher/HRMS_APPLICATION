@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReferRepository extends JpaRepository<Refer, Long> {
 
     List<Refer> findByJob_JobId(Long jobId);
+    List<Refer> findByJob_JobIdAndUser_Id(Long jobId,Long userId);
 }

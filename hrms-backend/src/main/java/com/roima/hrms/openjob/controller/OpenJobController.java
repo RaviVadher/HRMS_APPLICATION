@@ -1,8 +1,6 @@
 package com.roima.hrms.openjob.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roima.hrms.openjob.dto.*;
-import com.roima.hrms.openjob.enums.JobStatus;
 import com.roima.hrms.openjob.exception.InvalideFileFormateException;
 import com.roima.hrms.openjob.service.JobService;
 import org.springframework.core.io.Resource;
@@ -12,7 +10,6 @@ import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -64,10 +61,10 @@ public class OpenJobController {
         return jobService.shareJob(id,email);
     }
 
-    @GetMapping("/{job_id}/allShared")
-    public List<SharedJobResponseDto> shareAllJob(@PathVariable Long job_id)
+    @GetMapping("/{jobId}/allShared")
+    public List<SharedJobResponseDto> shareAllJob(@PathVariable Long jobId)
     {
-        return jobService.findAllShered(job_id);
+        return jobService.findAllShered(jobId);
     }
 
 
@@ -84,7 +81,7 @@ public class OpenJobController {
     }
 
     @GetMapping("/{jobId}/refers")
-    public List<ReferJobResponseDto> getRefereJob(@PathVariable Long jobId)
+    public List<ReferJobResponseDto> getReferJob(@PathVariable Long jobId)
     {
         return jobService.getRefer(jobId);
     }
@@ -106,5 +103,18 @@ public class OpenJobController {
     {
         return jobService.changeJobStatus(jobId,dto);
     }
+
+    @GetMapping("/{jobId}/myShared")
+    public List<SharedJobResponseDto> getAllShared(@PathVariable Long jobId)
+    {
+        return jobService.findMySharedJob(jobId);
+    }
+
+    @GetMapping("/{jobId}/myRefered")
+    public List<ReferJobResponseDto> getAllReferred(@PathVariable Long jobId)
+    {
+        return jobService.findMyReferredJob(jobId);
+    }
+
 
 }

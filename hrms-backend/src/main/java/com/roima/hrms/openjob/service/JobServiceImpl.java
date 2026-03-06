@@ -189,10 +189,9 @@ public JobDto createJob(JobCreateDto dto) {
         refer.setRefer_description(dto.getNote());
 
         Set<String> to = collectionTo(job);
-        String cvPath =  path.toString();
 
         emailService.sendMailWithAttachmentALl(to, "Refer Job",
-                EmailTemplate.referJob(job.getJobId(),job.getTitle(),user.getName(),dto.getFriendName(),dto.getFriendName()),cvPath);
+                EmailTemplate.referJob(job.getJobId(),job.getTitle(),user.getName(),dto.getFriendName(),dto.getFriendName()),path);
         referRepository.save(refer);
     }
 
@@ -231,7 +230,7 @@ public JobDto createJob(JobCreateDto dto) {
     @Override
     public Resource downloadCv(Long referId){
 
-        Refer ref = referRepository.findById(referId).orElseThrow(()->new RuntimeException("Invelid referId"));
+        Refer ref = referRepository.findById(referId).orElseThrow(()->new RuntimeException("Invalid referId"));
         return  fileStorageService.load(ref.getRefer_cvpath());
     }
 
@@ -244,4 +243,25 @@ public JobDto createJob(JobCreateDto dto) {
          jobRepository.save(job);
          return ResponseEntity.ok("Job Status Updated Successfully");
     }
+
+    @Override
+    public List<SharedJobResponseDto> findMySharedJob(Long jobId)
+    {
+        UserPrincipal userPrincipal =(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return sharedJobRepository.findByJob_JobIdAndSharedby_Id(jobId,userPrincipal.getUserId())
+                .stream()
+                .map(SharedJobMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<ReferJobResponseDto> findMyReferredJob(Long jobId)
+    {
+        UserPrincipal userPrincipal =(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return referRepository.findByJob_JobIdAndUser_Id(jobId,userPrincipal.getUserId())
+                .stream()
+                .map(ReferMapper::toDto)
+                .toList();
+    }
+
 }

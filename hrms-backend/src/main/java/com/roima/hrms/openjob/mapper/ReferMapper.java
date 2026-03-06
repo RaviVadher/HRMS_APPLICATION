@@ -3,10 +3,7 @@ package com.roima.hrms.openjob.mapper;
 import com.roima.hrms.openjob.dto.ReferJobResponseDto;
 import com.roima.hrms.openjob.entity.Refer;
 
-import java.time.LocalDateTime;
-
 public class ReferMapper {
-
 
     public static ReferJobResponseDto toDto(Refer refer)
     {

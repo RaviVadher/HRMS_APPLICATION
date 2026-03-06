@@ -2,9 +2,7 @@ package com.roima.hrms.openjob.mapper;
 
 import com.roima.hrms.openjob.dto.JobDto;
 import com.roima.hrms.openjob.entity.Job;
-import com.roima.hrms.openjob.enums.JobStatus;
 
-import java.time.LocalDateTime;
 
 public class JobMapper {
 

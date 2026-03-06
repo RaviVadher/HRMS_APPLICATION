@@ -9,5 +9,6 @@ import java.util.List;
 public interface SharedJobRepository extends JpaRepository<SharedJob, Long> {
 
     List<SharedJob> findByJob_JobId(Long jobId);
+    List<SharedJob> findByJob_JobIdAndSharedby_Id(Long jobId, Long userId);
 
 }

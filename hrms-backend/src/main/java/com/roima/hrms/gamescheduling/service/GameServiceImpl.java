@@ -44,6 +44,7 @@ public class GameServiceImpl implements GameService {
     private final GameInterestRepository gameInterestRepository;
     private final PlayerStatsRepository  playerStatsRepository;
 
+
     public GameServiceImpl(GameRepository gameRepository,
                            GameConfigRepository gameConfigRepository,
                            UserRepository userRepository,

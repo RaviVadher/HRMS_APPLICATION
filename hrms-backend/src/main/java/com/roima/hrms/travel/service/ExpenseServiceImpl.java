@@ -1,6 +1,7 @@
 package com.roima.hrms.travel.service;
 
 import com.roima.hrms.common.filestorage.FileStorageService;
+import com.roima.hrms.gamescheduling.exception.NotFoundException;
 import com.roima.hrms.mail.EmailService;
 import com.roima.hrms.mail.EmailTemplate;
 import com.roima.hrms.travel.dto.ChangeExpenseStatusDto;
@@ -20,6 +21,7 @@ import com.roima.hrms.user.entity.User;
 import com.roima.hrms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -149,8 +152,41 @@ public class ExpenseServiceImpl implements ExpenseService{
    @Override
    public Resource downloadProof(Long proofId){
 
-        ExpenseProof proof = expenseProofRepository.findById(proofId).orElseThrow(()->new RuntimeException("Invelid expense proof"));
+        ExpenseProof proof = expenseProofRepository.findById(proofId).orElseThrow(()->new RuntimeException("Invalid expense proof"));
         return  fileStorageService.load(proof.getFile_path());
     }
+
+    @Override
+    public ResponseEntity<String> addExpenseProof(Long expenseId, MultipartFile file)
+    {
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(()->new NotFoundException("Invalid expense id"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElseThrow(()->new RuntimeException("Invalid user"));
+
+        LocalDate entryDate = LocalDate.now();
+        LocalDate start_date = expense.getAssign().getTravel().getStart_date();
+        LocalDate end_date = expense.getAssign().getTravel().getEnd_date();
+
+        if(!entryDate.isAfter(start_date.minusDays(1)) || entryDate.isAfter(end_date.plusDays(10))){
+            throw new ExpenseSubmitNotAllowedException("Expense Proof Submission is not allowed");
+        }
+
+        String path = fileStorageService.store(
+                file,
+                expenseId,
+                user.getId(),
+                "expense",
+                "travel"
+        );
+        ExpenseProof expenseProof = new ExpenseProof();
+        expenseProof.setFile_path(path);
+        expenseProof.setExpense(expense);
+        expenseProof.setUser(user);
+        expenseProofRepository.save(expenseProof);
+
+        return ResponseEntity.ok("Expense proof added successfully");
+    }
+
 
 }

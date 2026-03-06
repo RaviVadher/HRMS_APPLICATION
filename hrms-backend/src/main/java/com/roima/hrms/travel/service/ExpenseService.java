@@ -19,4 +19,5 @@ public interface ExpenseService {
     ExpenseResponseDto changeStatus( Long expenseId, ChangeExpenseStatusDto dto);
     List<ExpenseProofResponseDto> getExpenseProofDetail(Long expenseId);
     Resource downloadProof(Long proofId);
+    ResponseEntity<String> addExpenseProof(Long expense_id,MultipartFile file);
 }

@@ -26,6 +26,6 @@ public class GameInterest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="fk_game_id",nullable = false)
     private Game game;
-
+    
 
 }

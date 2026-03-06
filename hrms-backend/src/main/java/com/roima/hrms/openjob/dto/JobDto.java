@@ -4,7 +4,6 @@ import com.roima.hrms.openjob.enums.JobStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
