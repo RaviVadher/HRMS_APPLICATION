@@ -37,12 +37,10 @@ public class User {
     private String email;
 
     @Past
-    @NotBlank(message = "birthdate cannot be empty")
     @Column(nullable = false)
     private LocalDate birth_date;
 
     @PastOrPresent
-    @NotBlank(message = "joining date cannot be empty")
     @Column(nullable = false)
     private LocalDate joining_date;
 

@@ -148,14 +148,24 @@ public class GameServiceImpl implements GameService {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user =  userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
-        if(gameInterestRepository.existsByUserIdAndGameId(user.getId(),gameId))
+        Optional<GameInterest> existing = gameInterestRepository.findByUserIdAndGameId(user.getId(), gameId);
+        if(existing.isPresent())
         {
-            throw new NotAllowedException("You have already interested for this game");
+            GameInterest gameInterest = existing.get();
+            if(Boolean.TRUE.equals(gameInterest.getActive())){
+                throw new NotAllowedException("You have already interested for this game");
+
+            }
+            gameInterest.setActive(true);
+            gameInterestRepository.save(gameInterest);
+            return ResponseEntity.ok("Interest added successfully");
+
         }
 
         GameInterest gameInterest = new GameInterest();
         gameInterest.setGame(game);
         gameInterest.setUser(user);
+        gameInterest.setActive(true);
         gameInterestRepository.save(gameInterest);
 
         PlayerStats stats = new PlayerStats();
@@ -163,7 +173,24 @@ public class GameServiceImpl implements GameService {
         stats.setUser(user);
         playerStatsRepository.save(stats);
 
-        return ResponseEntity.ok("Your Interest for Game is save successfully");
+        return ResponseEntity.ok("Your Interest for Game is saved successfully");
+    }
+
+    //remove interest
+    @Override
+    public ResponseEntity<String> removeInterest(Long gameId)
+    {
+        UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
+
+        GameInterest gameInterest = gameInterestRepository.findByUserIdAndGameId(user.getId(), gameId).orElseThrow(()->new NotFoundException("Game Interest not found"));
+        if(!gameInterest.getActive()){
+            throw new NotAllowedException("You have not interested for this game");
+        }
+
+        gameInterest.setActive(false);
+        gameInterestRepository.save(gameInterest);
+        return  ResponseEntity.ok("Interest removed successfully");
     }
 
     //get all interested user by gameID
@@ -171,8 +198,7 @@ public class GameServiceImpl implements GameService {
     public List<GameInterestUserDto> getGameInterested(Long gameId){
 
         gameRepository.findById(gameId).orElseThrow(()->new NotFoundException("Game not found"));
-
-        return gameInterestRepository.findUserByGameId(gameId)
+        return gameInterestRepository.findUserByGameIdAndActiveTrue(gameId)
                 .stream()
                 .map(InterestUserMapper::toDto)
                 .toList();
@@ -186,7 +212,7 @@ public class GameServiceImpl implements GameService {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user =  userRepository.findById(userPrincipal.getUserId()).orElseThrow(()->new UsernameNotFoundException("User not found"));
 
-        return gameInterestRepository.findGameByUserId(user.getId())
+        return gameInterestRepository.findGameByUserIdAndActiveTrue(user.getId())
                 .stream()
                 .map(InterestUserMapper::toDto)
                 .toList();

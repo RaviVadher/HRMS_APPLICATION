@@ -62,6 +62,12 @@ public class GameController {
         return gameService.interestedGame(gameId);
     }
 
+   @DeleteMapping("/{gameId}/gameInterest")
+   public ResponseEntity<String> removeInterest(@PathVariable Long gameId)
+   {
+       return gameService.removeInterest(gameId);
+   }
+
 
     @GetMapping("/{gameId}/gameInterest")
     public List<GameInterestUserDto> getGameInterested(@PathVariable Long gameId)

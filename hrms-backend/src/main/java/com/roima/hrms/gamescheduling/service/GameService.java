@@ -16,6 +16,7 @@ public interface GameService {
     GameConfigResponseDto getConfigGame(Long gameId);
     ResponseEntity<String> updateConfigGame(Long gameId,GameConfigRequestDto dto);
     ResponseEntity<String> interestedGame(Long gameId);
+    ResponseEntity<String> removeInterest(Long gameId);
     List<GameInterestUserDto> getGameInterested(Long gameId);
     List<GameInterestUserDto> getMyGameInterested();
 
