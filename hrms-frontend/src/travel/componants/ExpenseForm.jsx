@@ -22,6 +22,7 @@ const ExpenseForm = ({ assignedId, refresh,travelId,total }) => {
 
     const form = new FormData();
     form.append("amount", amount);  
+    if(!category) return toast.error("category is required");
     form.append("category", category);
     form.append("expenseDate", expenseDate);
     form.append("assignedId",assignedId);

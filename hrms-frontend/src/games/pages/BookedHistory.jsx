@@ -57,7 +57,7 @@ const BookedHistory = () => {
               <tr key={t.bookingId} className="border-t text-center">
                 <td className="p-3">{t.slotId}</td>
                 <td className="p-3">{t.bookingId}</td>
-                <td>{t.bookingTime}</td>
+                <td>{t.bookingTime.slice(0,19)}</td>
                 <td>{t.bookedBy}</td>
                 <td>{t.startTime}</td>
                 <td>{t.endTime}</td>

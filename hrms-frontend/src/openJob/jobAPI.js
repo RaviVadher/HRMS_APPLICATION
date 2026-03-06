@@ -39,9 +39,17 @@ export const shareJob = async (jobId,email) => {
 
 
 // list shared jobs by jobId
-export const getShares = async (jobId) => {
-  const res = await api.get(`/jobs/${jobId}/allShared`);
-  return res.data;
+export const getShares = async (jobId,role) => {
+  if(role==="ROLE_Hr")
+  {
+    const res = await api.get(`/jobs/${jobId}/allShared`);
+    return res.data;
+
+  }
+  else{
+        const res = await api.get(`/jobs/${jobId}/myShared`);
+        return res.data;
+  }
 };
 
 
@@ -53,9 +61,16 @@ export const referFriend = async (formData) => {
 };
 
 // get referrals by job
-export const getRefers = async (jobId) => {
-  const res = await api.get(`/jobs/${jobId}/refers`);
-  return res.data;
+export const getRefers = async (jobId,role) => {
+  if(role==="ROLE_Hr")
+  {
+    const res = await api.get(`/jobs/${jobId}/refers`);
+    return res.data;
+  }
+  else{
+     const res = await api.get(`/jobs/${jobId}/myRefered`);
+    return res.data;
+  }
 };
 
 //get cv by referId

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Notification from "../pages/Notification";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-
+import HomeFilledIcon from '@mui/icons-material/HomeFilled';
 
 
 export default function Navbar() {
@@ -25,8 +25,11 @@ export default function Navbar() {
                     ) : (
                         <div className="flex items-center gap-4">
                             <Link
+                                to={`/home`}
+                                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-600 hover:text-white"><HomeFilledIcon style={{ fontSize: 23, color: 'black' }} /> </Link>
+                            <Link
                                 to={`/profile/${user.id}`}
-                                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-600 hover:text-white"><AccountCircleIcon style={{ fontSize: 20, color: 'black' }} /> </Link>
+                                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-600 hover:text-white"><AccountCircleIcon style={{ fontSize: 23, color: 'black' }} /> </Link>
                             <Notification userId={user.id} />
                         </div>)}
                 </div>

@@ -2,20 +2,30 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateExpenseStatus } from "../travelAPI";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { TextField,MenuItem } from "@mui/material";
 
 
 const ExpenseList = ({ expenses, refresh }) => {
   const { user } = useAuth();
   const [hrRemark, setHrRemark] = useState({});
-  const [status, setStatus] = useState({})
+  const [status, setStatus] = useState({});
+  const [filter, setFilter] = useState("ALL");
   const navigate = useNavigate();
   const handleUpdate = async (id) => {
-    await updateExpenseStatus(id, {
+
+    if(status[id]==="Approved" || status[id]==="Rejected"){
+        await updateExpenseStatus(id, {
       status: status[id],
       hrRemark: hrRemark[id],
     })
     console.log(status)
     refresh();
+    }
+    else{
+      toast.error("please select status");
+    }
+   
   };
 
 
@@ -23,12 +33,33 @@ const ExpenseList = ({ expenses, refresh }) => {
     (sum, e) => sum + e.amount, 0
   )
 
+   let filtred = null;
+  if (filter === "ALL") {
+    filtred = expenses;
+  }
+  else if (filter === "Submitted") {
+    filtred = expenses.filter((t) => t.status ==="Submitted");
+  }
+  else if (filter === "Rejected") {
+    filtred = expenses.filter((t) => t.status ==="Rejected")
+  }
+  else {
+        filtred = expenses.filter((t) => t.status ==="Approved")
+  }
+
   return (
     <div className="bg-white p-6 rounded shadow">
-      <h3 className="font-semibold mb-4">
-        Expenses
-      </h3>
-
+      <div className="flex flex-row justify-between mb-1">
+      <h3 className="font-semibold mb-4"> <b>Expenses</b> </h3>
+      {user.role==="ROLE_Hr" &&
+          <TextField select size="small" value={filter} onChange={e => setFilter(e.target.value)}>
+          <MenuItem value="ALL">All</MenuItem>
+          <MenuItem value="Submitted">Submitted</MenuItem>
+          <MenuItem value="Rejected">Rejected</MenuItem>
+          <MenuItem value="Approved">Approved</MenuItem>
+        </TextField>
+      }
+      </div>
       <table className="w-full mb-4">
         <thead className="bg-gray-100">
           <tr>
@@ -43,10 +74,10 @@ const ExpenseList = ({ expenses, refresh }) => {
         </thead>
 
         <tbody>
-          {expenses.length === 0 ? (
+          {filtred.length === 0 ? (
             <tr><td colSpan="8" className="text-center p-4">NO EXPENSE FOUND</td></tr>
           ) : (
-            expenses.map(e => (
+            filtred.map(e => (
               <tr key={e.expenseId} className="border-t text-center">
                 <td className="p-2">{e.amount}</td>
                 <td>{e.category}</td>

@@ -147,3 +147,10 @@ export const getProofUrl = async(proof_id)=>{
 
    return res;
 }
+
+//add proof
+export const addProof = async(expenseId,file) =>{
+
+  const res = await api.post(`/travels/expenseProof/${expenseId}`,file);
+  return res.data;
+}

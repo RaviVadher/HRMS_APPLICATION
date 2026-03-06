@@ -16,7 +16,7 @@ export default function ReferTable({ refers }) {
 
   return (
     <>
-      <h2 className="text-2xl font-semibold">Refered Job List</h2>
+      <h2 className="text-2xl font-semibold mt-3">Refered Job List</h2>
       <div className="flex justify-between mb-6">
         <table className="w-full">
           <thead className="bg-gray-100">
@@ -24,19 +24,23 @@ export default function ReferTable({ refers }) {
               <th>ReferID</th>
               <th className="p-3">ReferBy</th>
               <th>ReferDate</th>
-              <th>ReferdName</th>
-              <th>ReferedEmail</th>
+              <th>FriendName</th>
+              <th>ReferredEmail</th>
               <th>CV</th>
             </tr>
           </thead>
 
           <tbody>
-            {refers.map((t) => (
+
+            {refers.length === 0 ? (
+              <tr><td colSpan="8" className="text-center p-4">No Referred Found</td></tr>
+            ) : (
+            refers.map((t) => (
 
               <tr key={t.referId} className="border-t text-center">
                 <td>{t.referId}</td>
                 <td>{t.sharedBy}</td>
-                <td>{t.sharedDate}</td>
+                <td>{t.sharedDate.slice(0, 19)}</td>
                 <td>{t.friendName}</td>
                 <td className="p-3">{t.friendEmail}</td>
                 <td>
@@ -46,7 +50,7 @@ export default function ReferTable({ refers }) {
                     View
                   </button>
                 </td>
-              </tr>
+              </tr>)
             ))}
           </tbody>
         </table>

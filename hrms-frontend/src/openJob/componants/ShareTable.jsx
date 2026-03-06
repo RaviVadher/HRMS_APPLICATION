@@ -5,7 +5,7 @@ export default function ShareTable({ shares }) {
  
   return (
     <>
-      <h2 className="text-2xl font-semibold">Shared Job List</h2>
+      <h2 className="text-2xl font-semibold mt-3">Shared Job List</h2>
 
       <div className="flex justify-between mb-6">
         <table className="w-full">
@@ -19,13 +19,16 @@ export default function ShareTable({ shares }) {
           </thead>
 
           <tbody>
-            {shares.map((t) => (
+             {shares.length === 0 ? (
+              <tr><td colSpan="8" className="text-center p-4">No Shared Found</td></tr>
+            ) : (
+            shares.map((t) => (
               <tr key={t.jobId} className="border-t text-center">
                 <td>{t.jobId}</td>
                 <td className="p-3">{t.sharedBy}</td>
-                <td>{t.sharedDate}</td>
+                <td>{t.sharedDate.slice(0, 19)}</td>
                 <td>{t.sharedEmail}</td>
-              </tr>
+              </tr>)
             ))}
           </tbody>
         </table>

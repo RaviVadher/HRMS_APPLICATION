@@ -8,7 +8,7 @@ import ReferForm from "../componants/ReferForm";
 import ShareForm from "../componants/ShareForm";
 import ShareTable from "../componants/ShareTable";
 import { useAuth } from "../../context/AuthContext";
-import { updateJobStatus, getRefers,getShares } from "../jobAPI";
+import { updateJobStatus, getRefers, getShares } from "../jobAPI";
 
 export default function JobDetails() {
     const { id } = useParams();
@@ -43,10 +43,11 @@ export default function JobDetails() {
     //refer details
     useEffect(() => {
         getRefer(id);
-    }, [id]);
+    }, [id,loading,user]);
 
     const getRefer = async (id) => {
-        const data = await getRefers(id);
+        if(loading) return;
+        const data = await getRefers(id,user.role);
         console.log(data);
         setReferes(data);
     }
@@ -56,10 +57,11 @@ export default function JobDetails() {
 
     useEffect(() => {
         getShare(id)
-    }, [id]);
+    }, [id,loading,user]);
 
     const getShare = async (id) => {
-        const data = await getShares(id);
+        if(loading) return;
+        const data = await getShares(id,user.role);
         console.log(data);
         setShares(data);
     }
@@ -67,48 +69,43 @@ export default function JobDetails() {
     if (reload || loading) return <DashboardLayout><CircularProgress></CircularProgress></DashboardLayout>
     return (
         <DashboardLayout>
-            <div className="bg-white p-5 rounded shadow">
-                <h3 className="text-xl font-semibold">Title:{job.title}</h3>
-                <span className="text "><b>Created By:</b> {job.createdBy}</span> <br />
-                <span className="text "><b>Email:</b>   {job.hrMail}</span><br />
-                <span className="text "><b>Status: </b>{job.status}</span>
+            <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow">
+                <h3 className="text-2xl font-semibold mb-4">Title: {job.title}</h3>
+                <p><strong>Created By: </strong> {job.createdBy}</p>
+                <p><strong>HR Email: </strong>  {job.hrMail}</p>
+                <p><strong>Status: </strong>{job.status}</p>
 
                 {user.role === "ROLE_Hr" && job.status === "Open" && (
-                    <div className="space-x-2" >
-                        <select className="border p-1" onChange={(ev) => setStatus(ev.target.value)} >
-                            {/* <option>{job.status}</option> */}
+                    <div className="flex items-center gap-3 mb-4" >
+                        <select className="border rounded px-2 py-1" onChange={(ev) => setStatus(ev.target.value)} >
                             <option value={"Open"}>Open</option>
                             <option value={"Closed"}>Closed</option>
                         </select>
-                        <button onClick={() => handleUpdate(job.jobId)}>
+                        <button className="bg-blue-600 text-white px-3 py-1 rounded" onClick={() => handleUpdate(job.jobId)}>
                             Save
                         </button>
                     </div>
                 )}
 
-                <p className="text-gray-600 mb-3">{job.summary}</p>
-                <div className="flex gap-3 mb-4">
-
+                <p className="text-gray-600 mb-6">{job.summary}</p>
                     {job.status === "Open" && (
-                        <>
+                        <div className="flex gap-3 mb-6">
                             <Button variant="outlined" onClick={() => setShareOpen(true)}>
                                 Share
                             </Button>
-
                             <Button variant="contained" onClick={() => setReferOpen(true)}>
                                 Refer
-                            </Button></>)}
-                </div>
-                {user.role === "ROLE_Hr" && (
-                    <>
+                            </Button> </div>
+                        )}
+               
+             
                         <Tabs value={tab} onChange={(e, v) => setTab(v)}>
                             <Tab label="Referrals" />
                             <Tab label="Shared" />
                         </Tabs>
                         {tab === 0 ? <ReferTable jobId={job.jobId} refers={refers} /> : <ShareTable jobId={job.jobId} shares={shares} />}
-                    </>
-                )}
-                <ShareForm open={shareOpen} close={() => setShareOpen(false)} job={job} getShare={getShare}/>
+              
+                <ShareForm open={shareOpen} close={() => setShareOpen(false)} job={job} getShare={getShare} />
                 <ReferForm open={referOpen} close={() => setReferOpen(false)} job={job} getRefer={getRefer} />
             </div>
         </DashboardLayout>

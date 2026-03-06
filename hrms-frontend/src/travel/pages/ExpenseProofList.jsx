@@ -1,19 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getExpeseProofs, getProofUrl } from "../travelAPI";
+import { Button } from "@mui/material";
+import AddProof from "../componants/AddProof";
+import { useAuth } from "../../context/AuthContext";
 const ExpenseProofList = () => {
   const navigate = useNavigate();
   const [proofs, setProofs] = useState([]);
+  const [openAdd,setOpenAdd] = useState(false);
   const { id } = useParams();
+  const {user,loading} = useAuth();
 
   useEffect(() => {
     fetchExpenseProof();
-  }, []);
+  }, [openAdd]);
 
   const fetchExpenseProof = async () => {
     const res = await getExpeseProofs(id);
     setProofs(res || []);
-    console.log(proofs)
+    console.log(res);
   };
 
   const openProof = async (proof_id) => {
@@ -24,6 +29,8 @@ const ExpenseProofList = () => {
     const url = window.URL.createObjectURL(blob);
     window.open(url);
   };
+   
+  if(loading) return;
 
   return (
     <div className="bg-white shadow rounded-lg">
@@ -33,6 +40,9 @@ const ExpenseProofList = () => {
             <th className="p-3">ProofId</th>
             <th>URL</th>
             <th>Upload Date</th>
+            {user.role ==="ROLE_Employee" &&
+             <th> <Button variant="outlined" onClick={() => setOpenAdd(true)}>+Add Proof</Button></th>
+             }
           </tr>
         </thead>
 
@@ -57,6 +67,8 @@ const ExpenseProofList = () => {
 
         </tbody>
       </table>
+         <AddProof open={openAdd} close={() => setOpenAdd(false)} expenseId ={id} />
+      
     </div>
   );
 };

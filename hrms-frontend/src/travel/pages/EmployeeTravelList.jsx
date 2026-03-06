@@ -73,7 +73,7 @@ const EmployeeTravelList = () => {
                   <td>{t.startDate}</td>
                   <td>{t.endDate}</td>
                   <td>{t.assignedBy}</td>
-                  <td>{t.assignedDate}{filtred.length}</td>
+                  <td>{t.assignedDate}</td>
                   <td>
                     <button
                       className="text-blue-600"

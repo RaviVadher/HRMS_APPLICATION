@@ -54,7 +54,7 @@ const SubmittedDocumentList = () => {
                 <tr key={t.documentId} className="border-t text-center">
                   <td>{t.documentId}</td>
                   <td className="p-3">{t.documentName}</td>
-                  <td>{t.submittedDate}</td>
+                  <td>{t.submittedDate.slice(0, 19)}</td>
                   <td>{t.submittedBy}</td>
                   <td>
                     <button

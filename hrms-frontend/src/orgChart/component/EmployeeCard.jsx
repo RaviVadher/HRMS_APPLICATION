@@ -1,8 +1,13 @@
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 const EmployeeCard = ({ employee, highlight }) => {
   return (
-    <>       
+    <>
     <b>EMPLOYEE</b>
     <hr />
+    <div className="text-center">
+    <ArrowDownwardIcon/>
+     </div>
+
     <div className={`p-6 rounded shadow mb-6 mt-3 text-center 
       ${highlight ? "bg-blue-100" : "bg-white"}`}>
       <h3 className="font-semibold text-lg">{employee.name}</h3>
