@@ -3,32 +3,31 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-function Login(){
+function Login() {
 
-    const {login} = useAuth();
-    const navigate = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-    const [email,setEmail] = useState("");
-    const [password,setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleSubmit = async(e) =>{
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const result = await login(email,password);
+    const result = await login(email, password);
 
-        if(result.success)
-        {
-            toast.success("login succesfull")
-            navigate("/home")
-        }
-        else{
-            toast.error(result.message);
-        }
-    };
-    
-    return (
+    if (result.success) {
+      toast.success("login succesfull")
+      navigate("/home")
+    }
+    else {
+      toast.error(result.message);
+    }
+  };
 
-         <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  return (
+
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-96"
@@ -57,10 +56,18 @@ function Login(){
         >
           Login
         </button>
+        <div className="text-right mb-4">
+          <span
+            onClick={() => navigate("/forgot-password")}
+            className="text-blue-600 cursor-pointer text-sm">
+            Forgot Password?
+          </span>
+        </div>
       </form>
     </div>
 
-    );
+
+  );
 }
 
 export default Login;

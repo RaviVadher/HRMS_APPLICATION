@@ -22,6 +22,9 @@ import BookedHistory from "./games/pages/BookedHistory";
 import AchievementsFeed from "./achievements/pages/achievementsFeed";
 import AchievementDetails from "./achievements/pages/AchievementDetails";
 import Profile from "./pages/Profile";
+import ResetPassword from "./resetPassword/ResetPassword";
+import VerifyOtp from "./resetPassword/VerifyOtp";
+import ForgotPassword from "./resetPassword/ForgotPassword";
 
 function App() {
   return (
@@ -29,6 +32,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/verify-otp" element={<VerifyOtp/>}/>
+        <Route path="/reset-password" element={<ResetPassword/>}/>
+
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/addtravel" element={<TravelForm />} />
         <Route path="/travel" element={<TravelIndex />} />
